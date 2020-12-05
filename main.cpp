@@ -7,10 +7,9 @@
 #include "Agent.h"
 #include "MCTS.h"
 #include "Policy.h"
+#include "Log.h"
 
 using namespace std;
-
-
 
 void usage() {
     cout << "Usage: mcts [options]\n";
@@ -47,15 +46,13 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    board init = board();
     PIECE p = BLACK;
-
-    auto start = chrono::steady_clock::now();
     
     board cur_board;
     Agent player{BLACK};
     Agent envir{WHITE};
-
+    Log playerLog;
+    Log envirLog;
 
     // Game Start
     while (true) {
@@ -63,11 +60,11 @@ int main(int argc, char *argv[]) {
         Pair mv;
         PIECE p = cur_board.take_turn();
 
-        if (p == BLACK ) {
-            mv = player.take_action(cur_board, Policy::MCTS_Serial);
+        if ( p == BLACK ) {
+            mv = player.take_action(cur_board, Policy::MCTS_Serial, playerLog);
         }
         else {
-            mv = envir.take_action(cur_board, Policy::MCTS_Serial);
+            mv = envir.take_action(cur_board, Policy::MCTS_Serial, envirLog);
         }
 
         // Game over
@@ -77,8 +74,12 @@ int main(int argc, char *argv[]) {
         cout << cur_board << '\n';
     }
 
-    auto end = chrono::steady_clock::now();
-    auto diff = end - start;
+    cout << "Player\n\n";
+    playerLog.printLog();
+    
+    cout << "Envir\n\n";
+    envirLog.printLog();
 
-    cout << chrono::duration <double, milli> (diff).count() << " ms" << endl;
+   
+
 }
