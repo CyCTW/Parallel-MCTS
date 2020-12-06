@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
         PIECE p = cur_board.take_turn();
 
         if ( p == BLACK ) {
-            mv = player.take_action(cur_board, Policy::MCTS_Serial, playerLog);
+            mv = player.take_action(cur_board, Policy::MCTS_Parallel, playerLog);
         }
         else {
             mv = envir.take_action(cur_board, Policy::MCTS_Serial, envirLog);

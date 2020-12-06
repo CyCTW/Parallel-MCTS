@@ -108,6 +108,7 @@ public:
 	}
 	
 	void tree_policy() {
+		// auto start = chrono::steady_clock::now();
 		board b {root_board};
 		TreeNode *current;
 		
@@ -136,6 +137,53 @@ public:
 		const WIN_STATE result { simulate(b) };
 		
 		backpropogate(result);
+		// auto end = chrono::steady_clock::now();
+  //       auto diff_time = end - start;
+  //       printf("Serial policy takes %f ms\n", chrono::duration <double, milli> (diff_time).count());
+	}
+	void parallel_tree_policy() {
+		// may have problem
+		// auto start = chrono::steady_clock::now();
+		const int thread_num = 16;
+		int CountInSimulation = 0;
+		board b {root_board};
+		TreeNode *current;
+		
+		select(b);
+		
+		TreeNode &leaf_node = *(path.back());
+		#pragma omp for
+		for (int i=0; i<thread_num; ++i){
+			/** if "the leaf node have no child and have visit before"  **/
+			#pragma omp critical
+			if (leaf_node.child_size==0 && leaf_node.total_count > 0){
+
+				leaf_node.expand(b);
+
+				if (leaf_node.child_size != 0) {
+					current = UCB(&leaf_node);
+					path.push_back(current);
+					b.move(current->move.prev, current->move.next, current->color);
+				}
+				// no step can go
+				else {
+					const WIN_STATE result = ( (leaf_node.color==WHITE) ? WHITE_WIN : BLACK_WIN);
+					backpropogate(result);
+					return;
+				}
+			}
+			
+			
+
+			const WIN_STATE result { simulate(b) };
+			#pragma omp critical
+			backpropogate(result);
+			
+		}
+		// auto end = chrono::steady_clock::now();
+  //       auto diff_time = end - start;
+  //       printf("Parallel policy takes %f ms\n", chrono::duration <double, milli> (diff_time).count());
+		
 	}
 	
 

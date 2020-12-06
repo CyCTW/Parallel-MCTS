@@ -10,7 +10,7 @@ public:
     Agent(PIECE piece) : piece(piece) {};
 
     Pair take_action(board &b, Pair (*Policy)(board&, const PIECE&, const int&), Log &log) {
-        const int simulation_count = 1000;
+        const int simulation_count = 40000;
 
         auto start = chrono::steady_clock::now();
         Pair mv = Policy(b, piece, simulation_count);
