@@ -3,32 +3,13 @@
 #include<time.h>
 #include<chrono>
 #include<getopt.h>
+
+#include "Agent.h"
 #include "MCTS.h"
+#include "Policy.h"
+#include "Log.h"
 
 using namespace std;
-
-Pair MCTS_Serial(board &before, const PIECE &piece, const int &simulation_times=1000) {
-    MonteCarloTree tree;
-    tree.reset(before);
-
-    std::cout << "MCTS take action\n";
-    const int &simulationtime = simulation_times;
-
-    int count_sim = 0;
-    while (count_sim < simulationtime) {
-        tree.tree_policy();
-        count_sim++;
-    }
-    
-    // tree.root->showchild();
-
-    Pair best_move = tree.root->best_child();
-    return best_move;
-}
-
-void MCTS_Parallel() {
-    return;
-}
 
 void usage() {
     cout << "Usage: mcts [options]\n";
@@ -65,18 +46,40 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    board init = board();
     PIECE p = BLACK;
+    
+    board cur_board;
+    Agent player{BLACK};
+    Agent envir{WHITE};
+    Log playerLog;
+    Log envirLog;
 
-    auto start = chrono::steady_clock::now();
-    if (version == "serial") {
-        MCTS_Serial( init, p, simulation_counts);    
-    }
-    else{
-        MCTS_Parallel();
-    }
-    auto end = chrono::steady_clock::now();
-    auto diff = end - start;
+    // Game Start
+    while (true) {
 
-    cout << chrono::duration <double, milli> (diff).count() << " ms" << endl;
+        Pair mv;
+        PIECE p = cur_board.take_turn();
+
+        if ( p == BLACK ) {
+            mv = player.take_action(cur_board, Policy::MCTS_Serial, playerLog);
+        }
+        else {
+            mv = envir.take_action(cur_board, Policy::MCTS_Serial, envirLog);
+        }
+
+        // Game over
+        if (mv == Pair{}) {
+            break;
+        }
+        cout << cur_board << '\n';
+    }
+
+    cout << "Player\n\n";
+    playerLog.printLog();
+    
+    cout << "Envir\n\n";
+    envirLog.printLog();
+
+   
+
 }

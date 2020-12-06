@@ -115,6 +115,7 @@ public:
 		
 		TreeNode &leaf_node = *(path.back());
 		
+		/** if "the leaf node have no child and have visit before"  **/
 		if (leaf_node.child_size==0 && leaf_node.total_count > 0){
 
 			leaf_node.expand(b);
@@ -128,6 +129,7 @@ public:
 			else {
 				const WIN_STATE result = ( (leaf_node.color==WHITE) ? WHITE_WIN : BLACK_WIN);
 				backpropogate(result);
+				return;
 			}
 		}
 

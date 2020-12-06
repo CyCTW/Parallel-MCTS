@@ -74,6 +74,11 @@ public:
 				best_child_idx = i;
 			}
 		}
+		
+		// no more step can go
+		if (child_size == 0) {
+			return {};
+		} 
 
 		auto best_child { this->child.get() + best_child_idx };
 		
