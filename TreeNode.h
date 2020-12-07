@@ -4,6 +4,8 @@
 #include "board.h"
 #include <memory>
 #include <climits>
+#include <vector>
+#include<utility>
 class MonteCarloTree;
 
 class TreeNode {
@@ -23,6 +25,17 @@ public:
 
 	TreeNode() : child(nullptr), child_size(0), total_count(0), win_count(0) {}
 	~TreeNode() {}
+	/*** For root parallelization ***/
+	std::size_t get_child_size(){
+		return child_size;
+	}
+	Pair get_move(){
+		return move;
+	}
+	std::unique_ptr<TreeNode[]> get_child(){
+		return std::move(child);
+	}
+	/*** For root parallelization ***/
 	
 	void init_TreeNode (const Pair &m, const PIECE &piece) {
 		this->color = piece;
@@ -62,7 +75,7 @@ public:
 		}
 		
 	}
-
+	
 	Pair best_child() {
 		std::size_t best_child_idx = -1;
 		double most_visit = INT_MIN;

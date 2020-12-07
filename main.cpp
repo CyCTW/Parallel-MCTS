@@ -63,7 +63,8 @@ int main(int argc, char *argv[]) {
 
         if ( p == BLACK ) {
             // mv = player.take_action(cur_board, Policy::MCTS_Serial, playerLog);
-            mv = player.take_action(cur_board, Policy::MCTS_Parallel, playerLog);
+            // mv = player.take_action(cur_board, Policy::MCTS_Parallel, playerLog);
+            mv = player.take_action(cur_board, Policy::MCTS_Parallel_root, playerLog);
         }
         else {
             mv = envir.take_action(cur_board, Policy::MCTS_Serial, envirLog);
