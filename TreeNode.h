@@ -13,6 +13,7 @@ private:
 	PIECE color;
 	Pair move;
 	std::size_t child_size;
+public:
 	double total_count;
 	double win_count;
 	// double means;

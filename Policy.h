@@ -6,7 +6,7 @@ public:
         MonteCarloTree tree;
         tree.reset(before);
 
-        std::cout << "MCTS take action\n";
+        // std::cout << "MCTS take action\n";
         const int &simulationtime = simulation_times;
 
         int count_sim = 0;
@@ -14,6 +14,7 @@ public:
             tree.tree_policy();
             count_sim++;
         }
+        cout << "Total count: " << tree.root->total_count << "\n";
         
         // tree.root->showchild();
 
@@ -21,8 +22,23 @@ public:
         return best_move;
     }
 
-    static void MCTS_Parallel() {
-        return;
+    static Pair MCTS_Parallel(board &before, const PIECE &piece, const int &simulation_times) { 
+        MonteCarloTree tree;
+        tree.reset(before);
+
+        // std::cout << "MCTS take action\n";
+        const int &simulationtime = simulation_times;
+
+        int count_sim = 0;
+        while (count_sim < simulationtime) {
+            tree.parallel_tree_policy();
+            count_sim++;
+        }
+        cout << "Total count: " << tree.root->total_count << "\n";
+        // tree.root->showchild();
+
+        Pair best_move = tree.root->best_child();
+        return best_move;
     }
 
 };

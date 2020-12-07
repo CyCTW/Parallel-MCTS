@@ -46,22 +46,24 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    PIECE p = BLACK;
     
-    board cur_board;
-    Agent player{BLACK};
-    Agent envir{WHITE};
     Log playerLog;
     Log envirLog;
 
     // Game Start
+    PIECE p = BLACK;
+
+    board cur_board;
+    Agent player{BLACK};
+    Agent envir{WHITE};
     while (true) {
 
         Pair mv;
         PIECE p = cur_board.take_turn();
 
         if ( p == BLACK ) {
-            mv = player.take_action(cur_board, Policy::MCTS_Serial, playerLog);
+            // mv = player.take_action(cur_board, Policy::MCTS_Serial, playerLog);
+            mv = player.take_action(cur_board, Policy::MCTS_Parallel, playerLog);
         }
         else {
             mv = envir.take_action(cur_board, Policy::MCTS_Serial, envirLog);
@@ -73,7 +75,7 @@ int main(int argc, char *argv[]) {
         }
         cout << cur_board << '\n';
     }
-
+    
     cout << "Player\n\n";
     playerLog.printLog();
     

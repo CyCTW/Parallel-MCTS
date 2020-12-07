@@ -351,25 +351,25 @@ public:
 
 	
 		// check repeated moves
-		if (step_stack[piece].empty())
-			step_stack[piece].push_back({prev_pos, place_pos});
-		else if ( ((*this)(place_pos) == SPACE) && (step_stack[piece].back() == Pair{place_pos, prev_pos})) {
-			step_stack[piece].push_back({prev_pos, place_pos});
-		}
-		else {
-			step_stack[piece].clear();
-			step_stack[piece].push_back({prev_pos, place_pos});
-		}
+		// if (step_stack[piece].empty())
+		// 	step_stack[piece].push_back({prev_pos, place_pos});
+		// else if ( ((*this)(place_pos) == SPACE) && (step_stack[piece].back() == Pair{place_pos, prev_pos})) {
+		// 	step_stack[piece].push_back({prev_pos, place_pos});
+		// }
+		// else {
+		// 	step_stack[piece].clear();
+		// 	step_stack[piece].push_back({prev_pos, place_pos});
+		// }
 
 		(*this)(place_pos) = piece;
 		(*this)(prev_pos) = SPACE;
 
 		step++;
 		// if repeated move too much, lose
-		if (step_stack[piece].size() >= repeat_move_limit) {
-			std::cout << "Repeated Move!! Lose.\n";
-			return FAIL;
-		}
+		// if (step_stack[piece].size() >= repeat_move_limit) {
+		// 	std::cout << "Repeated Move!! Lose.\n";
+		// 	return FAIL;
+		// }
 
 
 		return SUCCESS;
