@@ -8,6 +8,8 @@
 #include <climits>
 #include <omp.h>
 
+#define THREAD_NUM 8
+
 class MonteCarloTree {
 public:
 	std::unique_ptr<TreeNode> root;
@@ -145,7 +147,6 @@ public:
 	void parallel_tree_policy() {
 		// may have problem
 		// auto start = chrono::steady_clock::now();
-		const int thread_num = 8;
 		int CountInSimulation = 0;
 		board b {root_board};
 		TreeNode *current;
@@ -169,11 +170,11 @@ public:
 				return;
 			}
 		}
-		omp_set_num_threads(8);
+		omp_set_num_threads(THREAD_NUM);
 
-		WIN_STATE results[8];
+		// WIN_STATE results[8];
 		#pragma omp parallel for
-		for (int i=0; i<thread_num; ++i){
+		for (int i=0; i<THREAD_NUM; ++i){
 			/** if "the leaf node have no child and have visit before"  **/
 
 			// results[i] = simulate(b) ;

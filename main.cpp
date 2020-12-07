@@ -75,6 +75,7 @@ int main(int argc, char *argv[]) {
         }
         cout << cur_board << '\n';
     }
+    cout << "winner:"<< !cur_board.take_turn()<<'\n';
     
     cout << "Player\n\n";
     playerLog.printLog();

@@ -14,7 +14,7 @@ public:
             tree.tree_policy();
             count_sim++;
         }
-        cout << "Total count: " << tree.root->total_count << "\n";
+        cout << "Serial count:" << tree.root->total_count << "\n";
         
         // tree.root->showchild();
 
@@ -34,7 +34,7 @@ public:
             tree.parallel_tree_policy();
             count_sim++;
         }
-        cout << "Total count: " << tree.root->total_count << "\n";
+        cout << "Parallel count:" << tree.root->total_count << "\n";
         // tree.root->showchild();
 
         Pair best_move = tree.root->best_child();
