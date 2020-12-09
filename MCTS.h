@@ -7,8 +7,7 @@
 #include <time.h>
 #include <climits>
 #include <omp.h>
-
-#define THREAD_NUM 8
+#define THREAD_NUM 4
 
 class MonteCarloTree {
 public:
@@ -35,7 +34,7 @@ public:
 		for (std::size_t i = 0; i < n->child_size; ++i) {
 			TreeNode* ch = n->child.get() + i;
 			
-			const double exploit { ch->win_count / (ch->total_count + 1.0) };
+			const double exploit { ch->win_count / (double)(ch->total_count + 1.0) };
 			const double explore { sqrt( log(n->total_count) / (double)(ch->total_count+1.0) ) };
 			const double score { exploit + explore_parameter * explore };
 			
@@ -154,6 +153,8 @@ public:
 		select(b);
 		
 		TreeNode &leaf_node = *(path.back());
+
+		/** if "the leaf node have no child and have visit before"  **/
 		if (leaf_node.child_size==0 && leaf_node.total_count > 0){
 
 			leaf_node.expand(b);
@@ -175,7 +176,6 @@ public:
 		// WIN_STATE results[8];
 		#pragma omp parallel for
 		for (int i=0; i<THREAD_NUM; ++i){
-			/** if "the leaf node have no child and have visit before"  **/
 
 			// results[i] = simulate(b) ;
 			auto result = simulate(b);
