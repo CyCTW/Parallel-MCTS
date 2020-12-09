@@ -16,8 +16,8 @@ private:
 	Pair move;
 	std::size_t child_size;
 public:
-	double total_count;
-	double win_count;
+	int total_count;
+	int win_count;
 	// double means;
 
 public:		
@@ -26,14 +26,15 @@ public:
 	TreeNode() : child(nullptr), child_size(0), total_count(0), win_count(0) {}
 	~TreeNode() {}
 	/*** For root parallelization ***/
-	std::size_t get_child_size(){
-		return child_size;
-	}
+	
 	Pair get_move(){
 		return move;
 	}
 	std::unique_ptr<TreeNode[]> get_child(){
 		return std::move(child);
+	}
+	std::size_t get_child_size(){
+		return child_size;
 	}
 	/*** For root parallelization ***/
 	
