@@ -30,6 +30,12 @@ public:
 	bool operator!=(const Pair &p) {
 		return ( ! ((*this)==p) );
 	}
+	bool operator>(const Pair &p) const {
+		return ( this->prev > p.prev );
+	}
+	bool operator<(const Pair &p) const {
+		return ( this->prev < p.prev );
+	}
 };
 
 
