@@ -21,9 +21,10 @@ public:
         }
         cout << "Serial count:" << tree.root->total_count << "\n";
         
-        // tree.root->showchild();
+        //tree.root->showchild();
 
         Pair best_move = tree.root->best_child();
+        //std::cerr << "choose: (" << best_move.prev/6 << ", "<< best_move.prev%6  << ") to (" << best_move.next/6 << ", " <<best_move.next%6 << ")  \n";
         return best_move;
     }
 
@@ -48,7 +49,7 @@ public:
 
     /*** root parallelization ***/
     static Pair MCTS_Parallel_Root(board &before, const PIECE &piece, const int &simulation_times) { 
-		// const int THREAD_NUM = 4;
+		
         omp_set_num_threads(THREAD_NUM);
         
         MonteCarloTree tree[THREAD_NUM];
@@ -58,15 +59,22 @@ public:
         for(int i = 0; i < THREAD_NUM; i++){
             tree[i].reset(before);
             const int &simulationtime = simulation_times;
-
             int count_sim = 0;
             while (count_sim < simulationtime) {
                 tree[i].tree_policy();
                 count_sim++;
             }
+            // #pragma omp critical
+            // {
+            //     printf("---tree %d---\n", i);
+            //     tree[i].root->showchild();
+            //     printf("---tree %d---\n", i);
+            // }
+            
         }
 
         map<Pair, double> bag;
+        bag.clear();
         int Vcount = 0;
 
         // aggregate count result
@@ -89,11 +97,15 @@ public:
 
         int maxCount = 0;
         for(auto mp : bag) {
+            //std::cerr << "(" << mp.first.prev/6 << ", "<< mp.first.prev%6  << ") to (" << mp.first.next/6 << ", " << mp.first.next%6 << "),   ";
+            //std::cerr<< "num: " << mp.second << std::endl; 
             if (mp.second > maxCount) {
                 maxCount = mp.second;
                 best_move = mp.first;
             }
         }
+        //std::cerr << "Max count = " << maxCount << std::endl;
+        //std::cerr << "choose: (" << best_move.prev/6 << ", "<< best_move.prev%6  << ") to (" << best_move.next/6 << ", " <<best_move.next%6 << ")  \n";
         return best_move;
     }
 

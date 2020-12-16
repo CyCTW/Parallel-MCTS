@@ -21,7 +21,7 @@ public:
 	static constexpr double explore_parameter = sqrt(2.0);
 
 	MonteCarloTree() : root(), path(), root_board(), eng(rd()) {}
-	
+	// MonteCarloTree() : root(), path(), root_board(), eng(time(NULL)) {}
 	TreeNode* UCB (TreeNode* n)  {
 
 		if(n->child_size == 0) return nullptr;

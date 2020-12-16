@@ -25,16 +25,13 @@ public:
 	Pair (char x, char y) : prev(x), next(y) {}
 
 	bool operator==(const Pair &p) {
-		return ( p.prev==prev && p.next==next);
+		return (p.prev == prev && p.next==next);
 	}
 	bool operator!=(const Pair &p) {
-		return ( ! ((*this)==p) );
-	}
-	bool operator>(const Pair &p) const {
-		return ( this->prev > p.prev );
+		return ( !((*this)==p) );
 	}
 	bool operator<(const Pair &p) const {
-		return ( this->prev < p.prev );
+		return (prev < p.prev || (prev == p.prev && next < p.next) );
 	}
 };
 
