@@ -5,7 +5,9 @@
 #include <memory>
 #include <climits>
 #include <vector>
-#include<utility>
+#include <utility>
+#include <shared_mutex>
+
 class MonteCarloTree;
 
 class TreeNode {
@@ -15,6 +17,9 @@ private:
 	PIECE color;
 	Pair move;
 	std::size_t child_size;
+
+	mutable std::shared_mutex m_mutex;
+
 public:
 	int total_count;
 	int win_count;
@@ -42,22 +47,37 @@ public:
 		this->color = piece;
 		this->move = m;
 	}
-	
-	void addresult (const WIN_STATE &result) {
+
+
+	void addCount(int t_count, int w_count) {
+		std::unique_lock<std::shared_mutex> wLock(m_mutex);
+		total_count += t_count;
+		win_count += w_count;
+	}
+
+	void addresultLock (const WIN_STATE &result) {
 		// result is draw
+		int t_count = 1, w_count = 0;
+
+		if ( (result == BLACK_WIN && color==BLACK) || (result == WHITE_WIN && color==WHITE) ) {
+			w_count++;
+		}
+		/*----- Critical Section -----*/
+		addCount(t_count, w_count);
+		/*----- Critical Section -----*/
+	}
+
+	void addresult (const WIN_STATE &result) {
 		if (result == DRAW)
 			total_count++;
 		else if ( (result == BLACK_WIN && color==BLACK) || (result == WHITE_WIN && color==WHITE) ) {
 			total_count++;
 			win_count++;
-			//means = (means*total_count+1.00)/(total_count+1);
 		}
 		else
 			total_count++;
-	//	else
-			//means = (means*total_count)/(total_count+1);
-
 	}
+
 	void expand(board &b) {
 		
 		const PIECE& c = b.take_turn();
@@ -70,13 +90,40 @@ public:
 		
 		child = std::make_unique<TreeNode[]>(child_size);
 		int idx = 0;
+		 
 		for (auto &m : mv) {
 			child[idx].init_TreeNode(m, c);
 			idx++;
 		}
-		
 	}
-	
+
+	void expandLock(board &b) {
+		const PIECE& c = b.take_turn();
+		std::vector<Pair> mv = b.get_available_move(c);
+
+		child_size = mv.size();
+
+		if (child_size == 0)
+			return;
+		
+
+		/*----- Critical Section -----*/
+		std::unique_lock<std::shared_mutex> wLock(m_mutex);
+		// check if other thread has expanded or not
+		if (child != nullptr) {
+			return;
+		}
+
+		child = std::make_unique<TreeNode[]>(child_size);
+		int idx = 0;
+		 
+		for (auto &m : mv) {
+			child[idx].init_TreeNode(m, c);
+			idx++;
+		}
+		/*----- Critical Section -----*/
+	}
+
 	Pair best_child() {
 		std::size_t best_child_idx = -1;
 		double most_visit = INT_MIN;

@@ -31,7 +31,7 @@ public:
 		return ( !((*this)==p) );
 	}
 	bool operator<(const Pair &p) const {
-		return (prev < p.prev || (prev == p.prev && next < p.next) );
+		return (prev == p.prev ? next < p.next : prev > p.prev);
 	}
 };
 
@@ -373,6 +373,7 @@ public:
 		// 	std::cout << "Repeated Move!! Lose.\n";
 		// 	return FAIL;
 		// }
+		
 
 
 		return SUCCESS;
