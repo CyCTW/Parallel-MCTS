@@ -7,6 +7,7 @@
 #include <vector>
 #include <utility>
 #include <shared_mutex>
+#include <atomic>
 
 class MonteCarloTree;
 
@@ -21,15 +22,34 @@ private:
 	mutable std::shared_mutex m_mutex;
 
 public:
-	int total_count;
-	int win_count;
+	std::atomic<int> total_count;
+	std::atomic<int> win_count;
+	std::atomic<int> virtual_loss;
 	// double means;
 
 public:		
 	friend class MonteCarloTree;
 
-	TreeNode() : child(nullptr), child_size(0), total_count(0), win_count(0) {}
+	TreeNode() : child(nullptr), child_size(0), total_count(0), win_count(0), virtual_loss(0) {}
+	
 	~TreeNode() {}
+
+	TreeNode& operator = (const TreeNode &node) {
+		this->child_size = node.child_size;
+		this->child = std::make_unique<TreeNode[]>(this->child_size);
+
+		std::copy(node.child.get(), node.child.get() + node.child_size, child.get() );
+
+		this->color = node.color;
+		this->move = node.move;
+
+
+		this->total_count.store(node.total_count.load());
+		this->win_count.store(node.win_count.load());
+		this->virtual_loss.store(node.virtual_loss.load());
+		return *this;
+	}
+
 	/*** For root parallelization ***/
 	
 	Pair get_move(){
@@ -48,25 +68,6 @@ public:
 		this->move = m;
 	}
 
-
-	void addCount(int t_count, int w_count) {
-		std::unique_lock<std::shared_mutex> wLock(m_mutex);
-		total_count += t_count;
-		win_count += w_count;
-	}
-
-	void addresultLock (const WIN_STATE &result) {
-		// result is draw
-		int t_count = 1, w_count = 0;
-
-		if ( (result == BLACK_WIN && color==BLACK) || (result == WHITE_WIN && color==WHITE) ) {
-			w_count++;
-		}
-		/*----- Critical Section -----*/
-		addCount(t_count, w_count);
-		/*----- Critical Section -----*/
-	}
-
 	void addresult (const WIN_STATE &result) {
 		if (result == DRAW)
 			total_count++;
@@ -76,6 +77,7 @@ public:
 		}
 		else
 			total_count++;
+		virtual_loss--;
 	}
 
 	void expand(board &b) {
@@ -109,7 +111,8 @@ public:
 
 		/*----- Critical Section -----*/
 		std::unique_lock<std::shared_mutex> wLock(m_mutex);
-		// check if other thread has expanded or not
+
+		// check if other thread has expanded the leaf or not
 		if (child != nullptr) {
 			return;
 		}

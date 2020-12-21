@@ -17,7 +17,8 @@ public:
 	
 	std::random_device rd;
 	std::default_random_engine eng;
-
+	double c_virtual_loss = 5;
+	
 	static constexpr double explore_parameter = sqrt(2.0);
 
 	MonteCarloTree() : root(), root_board(), eng(rd()) {}
@@ -31,11 +32,16 @@ public:
 		std::size_t idx = 0;
 
 		for (std::size_t i = 0; i < n->child_size; ++i) {
-			TreeNode* ch = n->child.get() + i;
+			TreeNode* childNode = n->child.get() + i;
 			
-			const double exploit { ch->win_count / (double)(ch->total_count + 1.0) };
-			const double explore { sqrt( log(n->total_count) / (double)(ch->total_count+1.0) ) };
-			const double score { exploit + explore_parameter * explore };
+			int child_win_count = childNode->win_count.load();
+			int child_total_count = childNode->total_count.load();
+			
+			double virtual_loss = c_virtual_loss * n->virtual_loss.load();
+
+			const double exploit { child_win_count / (double)( child_total_count + 1.0) };
+			const double explore { sqrt( log( child_total_count ) / (double)( child_total_count + 1.0) ) };
+			const double score { exploit + explore_parameter * explore - virtual_loss};
 			
 			if ( (score <= (max_score + eps) ) && (score >= (max_score - eps) ) ) {
 				same_score[idx] = i;
@@ -51,6 +57,9 @@ public:
 		std::shuffle(std::begin(same_score), std::begin(same_score) + idx, eng);
 		std::size_t best_idx = same_score[0];
 		
+		// add virtual loss
+		n->virtual_loss++;
+
 		return (n->child.get() + best_idx); 
 	}
 
@@ -134,11 +143,6 @@ public:
 		}
 	}
 	
-	void backpropogateLock(const WIN_STATE &result, std::vector<TreeNode*> &path) {
-		for (auto &node : path) {
-			node->addresultLock(result);
-		}
-	}
 	
 	void tree_policy() {
 		// auto start = chrono::steady_clock::now();
@@ -151,7 +155,7 @@ public:
 		TreeNode &leaf_node = *(path.back());
 		
 		/** if "the leaf node have no child and have visit before"  **/
-		if (leaf_node.child_size==0 && leaf_node.total_count > 0){
+		if (leaf_node.child_size==0 && leaf_node.total_count.load() > 0){
 
 			leaf_node.expand(b);
 
@@ -184,7 +188,7 @@ public:
 		TreeNode &leaf_node = *(path.back());
 
 		/** if "the leaf node have no child and have visit before"  **/
-		if (leaf_node.child_size==0 && leaf_node.total_count > 0){
+		if (leaf_node.child_size==0 && leaf_node.total_count.load() > 0){
 
 			leaf_node.expand(b);
 
@@ -225,9 +229,9 @@ public:
 		TreeNode &leaf_node = *(path.back());
 		
 		/** if "the leaf node have no child and have visit before"  **/
-		if (leaf_node.child_size==0 && leaf_node.total_count > 0){
+		if (leaf_node.child_size==0 && leaf_node.total_count.load() > 0){
 
-			leaf_node.expand(b);
+			leaf_node.expandLock(b);
 
 			if (leaf_node.child_size != 0) {
 				current = UCB(&leaf_node);
@@ -237,14 +241,14 @@ public:
 			// no step can go
 			else {
 				const WIN_STATE result = ( (leaf_node.color==WHITE) ? WHITE_WIN : BLACK_WIN);
-				backpropogateLock(result, path);
+				backpropogate(result, path);
 				return;
 			}
 		}
 
 		const WIN_STATE result { simulate(b) };
 		
-		backpropogateLock(result, path);
+		backpropogate(result, path);
 	}
 	
 
@@ -253,8 +257,8 @@ public:
 		root = { std::make_unique<TreeNode>() };
 		root->color = root_board.take_turn();
 		root->move = {-1, -1};
-		root->total_count = 1;
-		root->win_count = 0;
+		root->total_count.store(1);
+		root->win_count.store(0);
 		root->child = nullptr;
 		root->child_size = 0;
 		root->expand(b);
