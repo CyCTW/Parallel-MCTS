@@ -51,32 +51,50 @@ int main(int argc, char *argv[]) {
     Log envirLog;
 
     // Game Start
-    PIECE p = BLACK;
+    // PIECE p = BLACK;
 
     board cur_board;
     Agent player{BLACK};
     Agent envir{WHITE};
+    const int limitStep = 500;
+    WIN_STATE outcome;
+
     while (true) {
 
         Pair mv;
         PIECE p = cur_board.take_turn();
 
         if ( p == BLACK ) {
-            mv = player.take_action(cur_board, Policy::MCTS_Serial, playerLog);
+            // mv = player.take_action(cur_board, Policy::MCTS_Serial, playerLog);
             // mv = player.take_action(cur_board, Policy::MCTS_Parallel_Leaf, playerLog);
             // mv = player.take_action(cur_board, Policy::MCTS_Parallel_Root, playerLog);
+            mv = player.take_action(cur_board, Policy::MCTS_Parallel_Tree, playerLog);
+
         }
         else {
             mv = envir.take_action(cur_board, Policy::MCTS_Serial, envirLog);
+            // mv = envir.take_action(cur_board, Policy::MCTS_Parallel_Leaf, envirLog);
         }
 
         // Game over
         if (mv == Pair{}) {
+            outcome = cur_board.compare_piece();
+            break;
+        } else if (player.getStep() > limitStep ) {
+            outcome = cur_board.compare_piece();
             break;
         }
         cout << cur_board << '\n';
     }
-    cout << "winner:"<< !cur_board.take_turn()<<'\n';
+    cout << "winner:  ";
+    if (outcome == BLACK_WIN) {
+        cout << "Black\n";
+
+    } else if (outcome == WHITE_WIN) {
+        cout << "White\n";
+    } else {
+        cout << "Draw\n";
+    }
     
     cout << "Player\n\n";
     playerLog.printLog();

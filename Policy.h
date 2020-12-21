@@ -21,12 +21,14 @@ public:
         }
         cout << "Serial count:" << tree.root->total_count << "\n";
         
-        // tree.root->showchild();
+        //tree.root->showchild();
 
         Pair best_move = tree.root->best_child();
+        //std::cerr << "choose: (" << best_move.prev/6 << ", "<< best_move.prev%6  << ") to (" << best_move.next/6 << ", " <<best_move.next%6 << ")  \n";
         return best_move;
     }
 
+    /*** leaf parallelization ***/
     static Pair MCTS_Parallel_Leaf(board &before, const PIECE &piece, const int &simulation_times) { 
         MonteCarloTree tree;
         tree.reset(before);
@@ -48,7 +50,7 @@ public:
 
     /*** root parallelization ***/
     static Pair MCTS_Parallel_Root(board &before, const PIECE &piece, const int &simulation_times) { 
-		// const int THREAD_NUM = 4;
+        
         omp_set_num_threads(THREAD_NUM);
         
         MonteCarloTree tree[THREAD_NUM];
@@ -58,7 +60,6 @@ public:
         for(int i = 0; i < THREAD_NUM; i++){
             tree[i].reset(before);
             const int &simulationtime = simulation_times;
-
             int count_sim = 0;
             while (count_sim < simulationtime) {
                 tree[i].tree_policy();
@@ -67,6 +68,7 @@ public:
         }
 
         map<Pair, double> bag;
+        bag.clear();
         int Vcount = 0;
 
         // aggregate count result
@@ -80,12 +82,12 @@ public:
                 return {};
             }
 
-            for(int child_idx = 0; child_idx < child_size; child_idx++){
+            for(size_t child_idx = 0; child_idx < child_size; child_idx++){
                 Pair move = child[ child_idx ].get_move();
                 bag[move] += child[ child_idx ].total_count;
             }
         }
-        std::cout << "Visit count: " << Vcount << "\n";
+        // std::cout << "Visit count: " << Vcount << "\n";
 
         int maxCount = 0;
         for(auto mp : bag) {
@@ -96,5 +98,25 @@ public:
         }
         return best_move;
     }
+    
+    /*** tree parallelization ***/
+    static Pair MCTS_Parallel_Tree(board &before, const PIECE &piece, const int &simulation_times) { 
+        MonteCarloTree tree;
+        tree.reset(before);
+        omp_set_num_threads(THREAD_NUM);
 
+        // std::cout << "MCTS take action\n";
+        const int &simulationtime = simulation_times * THREAD_NUM;
+
+        #pragma omp parallel for
+        for(int count_sim = 0; count_sim < simulationtime; count_sim++) {
+            tree.tree_policy_parallel();
+            count_sim++;
+        }
+        cout << "Parallel count:" << tree.root->total_count << "\n";
+        // tree.root->showchild();
+
+        Pair best_move = tree.root->best_child();
+        return best_move;
+    }
 };

@@ -5,7 +5,10 @@
 #include <memory>
 #include <climits>
 #include <vector>
-#include<utility>
+#include <utility>
+#include <shared_mutex>
+#include <atomic>
+
 class MonteCarloTree;
 
 class TreeNode {
@@ -15,16 +18,38 @@ private:
 	PIECE color;
 	Pair move;
 	std::size_t child_size;
+
+	mutable std::shared_mutex m_mutex;
+
 public:
-	int total_count;
-	int win_count;
+	std::atomic<int> total_count;
+	std::atomic<int> win_count;
+	std::atomic<int> virtual_loss;
 	// double means;
 
 public:		
 	friend class MonteCarloTree;
 
-	TreeNode() : child(nullptr), child_size(0), total_count(0), win_count(0) {}
+	TreeNode() : child(nullptr), child_size(0), total_count(0), win_count(0), virtual_loss(0) {}
+	
 	~TreeNode() {}
+
+	TreeNode& operator = (const TreeNode &node) {
+		this->child_size = node.child_size;
+		this->child = std::make_unique<TreeNode[]>(this->child_size);
+
+		std::copy(node.child.get(), node.child.get() + node.child_size, child.get() );
+
+		this->color = node.color;
+		this->move = node.move;
+
+
+		this->total_count.store(node.total_count.load());
+		this->win_count.store(node.win_count.load());
+		this->virtual_loss.store(node.virtual_loss.load());
+		return *this;
+	}
+
 	/*** For root parallelization ***/
 	
 	Pair get_move(){
@@ -42,22 +67,19 @@ public:
 		this->color = piece;
 		this->move = m;
 	}
-	
+
 	void addresult (const WIN_STATE &result) {
-		// result is draw
 		if (result == DRAW)
 			total_count++;
 		else if ( (result == BLACK_WIN && color==BLACK) || (result == WHITE_WIN && color==WHITE) ) {
 			total_count++;
 			win_count++;
-			//means = (means*total_count+1.00)/(total_count+1);
 		}
 		else
 			total_count++;
-	//	else
-			//means = (means*total_count)/(total_count+1);
-
+		virtual_loss--;
 	}
+
 	void expand(board &b) {
 		
 		const PIECE& c = b.take_turn();
@@ -70,13 +92,41 @@ public:
 		
 		child = std::make_unique<TreeNode[]>(child_size);
 		int idx = 0;
+		 
 		for (auto &m : mv) {
 			child[idx].init_TreeNode(m, c);
 			idx++;
 		}
-		
 	}
-	
+
+	void expandLock(board &b) {
+		const PIECE& c = b.take_turn();
+		std::vector<Pair> mv = b.get_available_move(c);
+
+		child_size = mv.size();
+
+		if (child_size == 0)
+			return;
+		
+
+		/*----- Critical Section -----*/
+		std::unique_lock<std::shared_mutex> wLock(m_mutex);
+
+		// check if other thread has expanded the leaf or not
+		if (child != nullptr) {
+			return;
+		}
+
+		child = std::make_unique<TreeNode[]>(child_size);
+		int idx = 0;
+		 
+		for (auto &m : mv) {
+			child[idx].init_TreeNode(m, c);
+			idx++;
+		}
+		/*----- Critical Section -----*/
+	}
+
 	Pair best_child() {
 		std::size_t best_child_idx = -1;
 		double most_visit = INT_MIN;
@@ -89,7 +139,7 @@ public:
 				best_child_idx = i;
 			}
 		}
-		
+		//printf("max: %lf\n", most_visit);
 		// no more step can go
 		if (child_size == 0) {
 			return {};

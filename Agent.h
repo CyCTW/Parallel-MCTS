@@ -7,7 +7,7 @@ using namespace std;
 class Agent {
 
 public:
-    Agent(PIECE piece) : piece(piece) {};
+    Agent(PIECE piece) : piece(piece), step(0) {};
 
     Pair take_action(board &b, Pair (*Policy)(board&, const PIECE&, const int&), Log &log) {
         const int simulation_count = 1000;
@@ -24,7 +24,7 @@ public:
         
 
         EXEC_STATE S = b.move(mv.prev, mv.next, piece);
-
+        step++;
         if (S == FAIL) {
             return {};
         } else {
@@ -33,7 +33,13 @@ public:
     };
 
     PIECE get_piece() const { return piece; }
+
+    int getStep() {
+        return step;
+    }
 protected:
     const PIECE piece;
+
+    int step;
 
 }; 
