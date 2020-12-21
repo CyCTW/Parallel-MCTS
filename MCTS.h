@@ -7,7 +7,7 @@
 #include <time.h>
 #include <climits>
 #include <omp.h>
-#define THREAD_NUM 4
+// #define THREAD_NUM 4
 
 class MonteCarloTree {
 public:
@@ -18,7 +18,6 @@ public:
 	std::random_device rd;
 	std::default_random_engine eng;
 	double c_virtual_loss = 5;
-	
 	static constexpr double explore_parameter = sqrt(2.0);
 
 	MonteCarloTree() : root(), root_board(), eng(rd()) {}
@@ -40,8 +39,13 @@ public:
 			double virtual_loss = c_virtual_loss * n->virtual_loss.load();
 
 			const double exploit { child_win_count / (double)( child_total_count + 1.0) };
-			const double explore { sqrt( log( child_total_count ) / (double)( child_total_count + 1.0) ) };
-			const double score { exploit + explore_parameter * explore - virtual_loss};
+			const double explore { sqrt( log( n->total_count.load() ) / (double)( child_total_count + 1.0) ) };
+			
+			// without virtual loss
+			const double score { exploit + explore_parameter * explore };
+
+			// with virtual loss
+			// const double score { exploit + explore_parameter * explore - virtual_loss };
 			
 			if ( (score <= (max_score + eps) ) && (score >= (max_score - eps) ) ) {
 				same_score[idx] = i;
@@ -176,7 +180,9 @@ public:
 		
 		backpropogate(result, path);
 	}
-	void parallel_tree_policy() {
+
+
+	void parallelLeaf_tree_policy() {
 		// may have problem
 		// int CountInSimulation = 0;
 		board b {root_board};
@@ -205,20 +211,19 @@ public:
 			}
 		}
 		omp_set_num_threads(THREAD_NUM);
-
-		// WIN_STATE results[8];
 		#pragma omp parallel for
 		for (int i=0; i<THREAD_NUM; ++i){
 
-			// results[i] = simulate(b) ;
 			auto result = simulate(b);
 
 			#pragma omp critical
 			backpropogate(result, path);
-			
 		}
+		
 	}
-	void tree_policy_parallel() {
+
+
+	void parallelTree_tree_policy() {
 		// auto start = chrono::steady_clock::now();
 		board b {root_board};
 		TreeNode *current;

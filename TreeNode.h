@@ -2,6 +2,7 @@
 #define NDEBUG
 
 #include "board.h"
+
 #include <memory>
 #include <climits>
 #include <vector>
@@ -100,13 +101,7 @@ public:
 	}
 
 	void expandLock(board &b) {
-		const PIECE& c = b.take_turn();
-		std::vector<Pair> mv = b.get_available_move(c);
-
-		child_size = mv.size();
-
-		if (child_size == 0)
-			return;
+		
 		
 
 		/*----- Critical Section -----*/
@@ -116,6 +111,13 @@ public:
 		if (child != nullptr) {
 			return;
 		}
+
+		const PIECE& c = b.take_turn();
+		std::vector<Pair> mv = b.get_available_move(c);
+
+		child_size = mv.size();
+		if (child_size == 0)
+			return;
 
 		child = std::make_unique<TreeNode[]>(child_size);
 		int idx = 0;
@@ -150,13 +152,14 @@ public:
 		return std::move( best_child->move );
 	}
 	void showchild() {
-		std::cerr << std::setw(6) <<"from:";
-		std::cerr << std::setw(10) << "to:";
-		std::cerr << "  win rate     total_count\n";
+		std::cerr << std::setw(6) <<"from:\t ";
+		std::cerr << std::setw(10) << "to:\t\t";
+		std::cerr << "win rate    ";
+		std::cerr << "total_count\n";
 		for(std::size_t i=0; i < child_size; ++i) {
-			if (child[i].total_count >= 0) {
-				std::cerr << "(" << child[i].move.prev/6 << ", "<< child[i].move.prev%6  << ") to (" << child[i].move.next/6 << ", " <<child[i].move.next%6 << ")  " 
-				<< child[i].win_count/child[i].total_count << ' ' << child[i].total_count << ' ';
+			if (child[i].total_count > 0) {
+				std::cerr << "(" << child[i].move.prev/6 << ", "<< child[i].move.prev%6  << ")\t\t(" << child[i].move.next/6 << ", " <<child[i].move.next%6 << ")\t\t" 
+				<< std::fixed << std::setprecision(5) << child[i].win_count/ (double) child[i].total_count << "     " << child[i].total_count << ' ';
 				std::cerr << "\n\n";
 			}
 		}

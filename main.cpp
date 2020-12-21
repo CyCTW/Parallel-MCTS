@@ -13,19 +13,11 @@ using namespace std;
 
 void usage() {
     cout << "Usage: mcts [options]\n";
-    cout << "   -v  --version <serial/thread>   Enter which version to run\n";
-    cout << "   -c  --count <N>                 Run MCTS with N simulation times\n";
-    cout << "   -?  --help                      Help message\n";
+    cout << "   -?  --help                      Edit config.h to set parameter\n";
 }
-
-int main(int argc, char *argv[]) {
-    int simulation_counts = 1000;
-    string version = "serial";
-    // parse argument
+void setEnvParameter(int &simulation_counts, int argc, char** argv) {
     int opt;
     static struct option long_options[] = {
-        {"version", 1, 0, 'v'},
-        {"count", 1, 0, 'c'},
         {"help", 0, 0, '?'},
         {0, 0, 0, 0}};
 
@@ -33,30 +25,56 @@ int main(int argc, char *argv[]) {
     {
         switch (opt)
         {
-        case 'v':
-            version = string(optarg);
-            break;
         case 'c':
             simulation_counts = atoi(optarg);
             break;
         case '?':
         default:
             usage();
-            return 1;
+            exit(0);
         }
     }
+}
 
+auto setPolicy(string policy) {
+    switch (policy[0]) {
+        case 'S':
+        case 's':
+            return Policy::MCTS_Serial;
+        case 'L':
+        case 'l':
+            return Policy::MCTS_Parallel_Leaf;
+            break;
+        case 'R':
+        case 'r':
+            return Policy::MCTS_Parallel_Root;
+            break;
+        case 'T':
+        case 't':
+            return Policy::MCTS_Parallel_Tree;
+            break;
+        default:
+            std::cerr << "Black Policy not defined!\n";
+            exit(0);
+    }
+}
+int main(int argc, char *argv[]) {
+
+    /***** Parameter Setting *****/
+    int simulation_counts = SIMULATION_COUNT;
+    const int limitStep = LIMIT_STEP;
+    auto black_policy = setPolicy(BLACK_POLICY);
+    auto white_policy = setPolicy(WHITE_POLICY);
+    
+    setEnvParameter(simulation_counts, argc, argv);
     
     Log playerLog;
     Log envirLog;
 
-    // Game Start
-    // PIECE p = BLACK;
-
+    // Game Parameter
     board cur_board;
     Agent player{BLACK};
     Agent envir{WHITE};
-    const int limitStep = 500;
     WIN_STATE outcome;
 
     while (true) {
@@ -65,15 +83,10 @@ int main(int argc, char *argv[]) {
         PIECE p = cur_board.take_turn();
 
         if ( p == BLACK ) {
-            // mv = player.take_action(cur_board, Policy::MCTS_Serial, playerLog);
-            // mv = player.take_action(cur_board, Policy::MCTS_Parallel_Leaf, playerLog);
-            // mv = player.take_action(cur_board, Policy::MCTS_Parallel_Root, playerLog);
-            mv = player.take_action(cur_board, Policy::MCTS_Parallel_Tree, playerLog);
-
+            mv = player.take_action(cur_board, black_policy, playerLog);
         }
         else {
-            mv = envir.take_action(cur_board, Policy::MCTS_Serial, envirLog);
-            // mv = envir.take_action(cur_board, Policy::MCTS_Parallel_Leaf, envirLog);
+            mv = envir.take_action(cur_board, white_policy, envirLog);
         }
 
         // Game over
