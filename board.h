@@ -15,6 +15,8 @@ Surakarta Game board, implement functions related to board.
 #include <unordered_map>
 #include <set>
 #include <functional>
+
+#include "config.h"
 // #include <torch/torch.h>
 
 class Pair {
