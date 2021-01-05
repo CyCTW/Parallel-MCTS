@@ -100,7 +100,6 @@ int main(int argc, char *argv[]) {
     envParam = {-1, 1000, 4, "Tree", "Serial"};
     setEnvParameter(argc, argv);
 
-    int simulation_counts = envParam.simulation_counts;
     const int limitStep = LIMIT_STEP;
     auto black_policy = setPolicy( envParam.black_policy );
     auto white_policy = setPolicy( envParam.white_policy );

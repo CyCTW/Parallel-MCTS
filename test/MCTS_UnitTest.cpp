@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "board.h"
-#include "Policy.h"
-#include "MCTS.h"
+#include "../src/board.h"
+#include "../src/Policy.h"
+#include "../src/MCTS.h"
 using namespace std;
 
 TEST(SimulationCount, SerialSimulationCount) {

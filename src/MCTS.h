@@ -42,10 +42,10 @@ public:
 			const double explore { sqrt( log( n->total_count.load() ) / (double)( child_total_count + 1.0) ) };
 			
 			// without virtual loss
-			const double score { exploit + explore_parameter * explore };
+			// const double score { exploit + explore_parameter * explore };
 
 			// with virtual loss
-			// const double score { exploit + explore_parameter * explore - virtual_loss };
+			const double score { exploit + explore_parameter * explore - virtual_loss };
 			
 			if ( (score <= (max_score + eps) ) && (score >= (max_score - eps) ) ) {
 				same_score[idx] = i;
