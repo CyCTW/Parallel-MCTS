@@ -15,10 +15,16 @@ Surakarta Game board, implement functions related to board.
 #include <unordered_map>
 #include <set>
 #include <functional>
-
+#include <iostream>
 #include "config.h"
 // #include <torch/torch.h>
-
+struct EnvParameter{
+    int simulation_counts;
+    double time;
+    int thread_num;
+    std::string black_policy;
+    std::string white_policy;
+} envParam;
 class Pair {
 public:
 	char prev;

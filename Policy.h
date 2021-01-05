@@ -8,26 +8,30 @@
 
 class Policy {
 public:
-    static Pair MCTS_Serial(board &before, const PIECE &piece) {
+    static Pair MCTS_Serial(board &before, const PIECE &piece, const EnvParameter &env) {
 
         MonteCarloTree tree;
         tree.reset(before);
 
         // std::cout << "MCTS take action\n";
 
-        // int count_sim = 0;
+        int count_sim = 0;
         auto start = chrono::steady_clock::now();
         auto end = chrono::steady_clock::now();
         auto diff_time = chrono::duration<double, milli>(end - start).count();
 
-        // while (count_sim < SIMULATION_COUNT) {
-        //     tree.tree_policy();
-        //     count_sim++;
-        // }
-        while(diff_time < SIMULATION_TIME){
-            tree.tree_policy();
-            end = chrono::steady_clock::now();
-            diff_time = chrono::duration<double, milli>(end - start).count();
+        if ( env.simulation_counts > 0 ) {
+            while (count_sim < env.simulation_counts) {
+                tree.tree_policy();
+                count_sim++;
+            }
+        }
+        else if ( env.time > 0 ){
+            while(diff_time < env.time ){
+                tree.tree_policy();
+                end = chrono::steady_clock::now();
+                diff_time = chrono::duration<double, milli>(end - start).count();
+            }
         }
         cout << "Serial count:" << tree.root->total_count << "\n";
         
@@ -41,26 +45,31 @@ public:
     }
 
     /***** leaf parallelization *****/
-    static Pair MCTS_Parallel_Leaf(board &before, const PIECE &piece) { 
+    static Pair MCTS_Parallel_Leaf(board &before, const PIECE &piece, const EnvParameter &env) { 
         MonteCarloTree tree;
         tree.reset(before);
 
         // std::cout << "MCTS take action\n";
 
-        // int count_sim = 0;
+        int count_sim = 0;
         auto start = chrono::steady_clock::now();
         auto end = chrono::steady_clock::now();
         auto diff_time = chrono::duration<double, milli>(end - start).count();
-        while (diff_time < SIMULATION_TIME)
-        {
-            tree.parallelLeaf_tree_policy();
-            end = chrono::steady_clock::now();
-            diff_time = chrono::duration<double, milli>(end - start).count();
+
+        if (env.time > 0) {
+            while (diff_time < env.time)
+            {
+                tree.parallelLeaf_tree_policy();
+                end = chrono::steady_clock::now();
+                diff_time = chrono::duration<double, milli>(end - start).count();
+            }
         }
-        // while (count_sim < SIMULATION_COUNT) {
-        //     tree.parallelLeaf_tree_policy();
-        //     count_sim++;
-        // }
+        else if(env.simulation_counts > 0) {
+            while (count_sim < env.simulation_counts) {
+                tree.parallelLeaf_tree_policy();
+                count_sim++;
+            }
+        }
         cout << "Parallel count:" << tree.root->total_count << "\n";
 
         if (PRINT_TREE)
@@ -103,42 +112,51 @@ public:
         }
 
     }
-    static void rootParallelizationOMP(MonteCarloTree *trees) {
+    static void rootParallelizationOMP(MonteCarloTree *trees, const EnvParameter &env) {
 
-        omp_set_num_threads(THREAD_NUM);
+        omp_set_num_threads(env.thread_num);
 
-        #pragma omp parallel for
-        for(int i = 0; i < THREAD_NUM; i++){
-            // int count_sim = 0;
-            // while (count_sim < SIMULATION_COUNT) {
-            //     trees[i].tree_policy();
-            //     count_sim++;
-            // }
-            auto start = chrono::steady_clock::now();
-            auto end = chrono::steady_clock::now();
-            auto diff_time = chrono::duration<double, milli>(end - start).count();
-            while (diff_time < SIMULATION_TIME - COLLECT_BAG_TIME)
-            {
-                trees->tree_policy();
-                end = chrono::steady_clock::now();
-                diff_time = chrono::duration<double, milli>(end - start).count();
+        if (env.time > 0) {
+            #pragma omp parallel for
+            for(int i = 0; i < env.thread_num; i++){
+                auto start = chrono::steady_clock::now();
+                auto end = chrono::steady_clock::now();
+                auto diff_time = chrono::duration<double, milli>(end - start).count();
+
+                while (diff_time < env.time)
+                {
+                    trees[i].tree_policy();
+                    end = chrono::steady_clock::now();
+                    diff_time = chrono::duration<double, milli>(end - start).count();
+                }
+                // cout << "Count: " << count_sim << '\n';
             }
+        }
+        else if (env.simulation_counts > 0) {
+            #pragma omp parallel for
+            for(int i = 0; i < env.thread_num; i++){
+                int count_sim = 0;
 
-            // cout << "Count: " << count_sim << '\n';
+                while (count_sim < env.simulation_counts) {
+                    trees[i].tree_policy();
+                    count_sim++;
+                }
+                // cout << "Count: " << count_sim << '\n';
+            }
         }
 
     }
-    static Pair MCTS_Parallel_Root(board &before, const PIECE &piece) {
+    static Pair MCTS_Parallel_Root(board &before, const PIECE &piece,  const EnvParameter &env) {
 
-        MonteCarloTree trees[THREAD_NUM];
-        for(int i=0; i < THREAD_NUM; i++) {
+        MonteCarloTree trees[env.thread_num];
+        for( int i = 0; i < env.thread_num; i++ ) {
             trees[i].reset(before);
         }
 
         Pair best_move;
 
         // rootParallelizationPthread(trees);
-        rootParallelizationOMP(trees);
+        rootParallelizationOMP(trees, env);
         auto start = chrono::steady_clock::now();
 
         map<Pair, double> bag;
@@ -146,7 +164,7 @@ public:
         int Vcount = 0;
 
         // aggregate count result
-        for(int thread_idx = 0; thread_idx < THREAD_NUM; thread_idx++){
+        for(int thread_idx = 0; thread_idx < env.thread_num; thread_idx++){
             // get child & count
             auto child = trees[ thread_idx ].root->get_child();
             Vcount += trees[ thread_idx ].root->total_count;
@@ -211,40 +229,50 @@ public:
         }
 
     }
-    static void treeParallizationOMP(MonteCarloTree *tree) {
-        omp_set_num_threads(THREAD_NUM);
+    static void treeParallizationOMP(MonteCarloTree *tree,  const EnvParameter &env) {
+        omp_set_num_threads(env.thread_num);
 
-        #pragma omp parallel for
-        for (int i=0; i<THREAD_NUM; ++i){
-            auto start = chrono::steady_clock::now();
-            auto end = chrono::steady_clock::now();
-            auto diff_time = chrono::duration<double, milli>(end - start).count();
-            while (diff_time < SIMULATION_TIME)
-            {
-                tree->parallelTree_tree_policy();
-                end = chrono::steady_clock::now();
-                diff_time = chrono::duration<double, milli>(end - start).count();
+        if (env.simulation_counts > 0) {
+            #pragma omp parallel for
+            for (int i = 0; i < env.thread_num; ++i ){
+                int count_sim = 0;
+                while (count_sim < env.simulation_counts)
+                {
+                    tree->parallelTree_tree_policy();
+                    count_sim++;
+                }
             }
         }
-        // for(int count_sim = 0; count_sim < SIMULATION_COUNT; count_sim++) {
-        //     tree->parallelTree_tree_policy();
-        //     count_sim++;
-        // }
+        else if (env.time > 0) {
+            #pragma omp parallel for
+            for (int i = 0; i < env.thread_num; ++i ){
+                auto start = chrono::steady_clock::now();
+                auto end = chrono::steady_clock::now();
+                auto diff_time = chrono::duration<double, milli>(end - start).count();
+                
+                while (diff_time < env.time)
+                {
+                    tree->parallelTree_tree_policy();
+                    end = chrono::steady_clock::now();
+                    diff_time = chrono::duration<double, milli>(end - start).count();
+                }
+            }
+        }
     }
-    static Pair MCTS_Parallel_Tree(board &before, const PIECE &piece) { 
+    static Pair MCTS_Parallel_Tree(board &before, const PIECE &piece,  const EnvParameter &env) { 
         MonteCarloTree tree;
         tree.reset(before);
 
         // std::cout << "MCTS take action\n";
 
-        cout << "Simulation time: " << SIMULATION_COUNT << '\n';
+        cout << "Simulation time: " << env.simulation_counts << '\n';
 
         /***** Pthread *****/
         // treeParallizationPthread(&tree);
         /***** Pthread *****/
         
         /***** OpenMP *****/
-        treeParallizationOMP(&tree);
+        treeParallizationOMP(&tree, env);
         /***** OpenMP *****/
         
 

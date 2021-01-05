@@ -11,32 +11,68 @@
 
 using namespace std;
 
+
+
+
 void usage() {
     cout << "Usage: mcts [options]\n";
-    cout << "   -?  --help                      Edit config.h to set parameter\n";
+    cout << "   -c  --simCount                     Simulation count per step\n";
+    cout << "   -t  --simTime                      Simulation time per step\n";
+    cout << "   -T  --threadNum                    Number of thread num\n";
+    cout << "   -b  --blackPolicy                  Black policy (e.g. Serial, Leaf, Root, Tree)\n";
+    cout << "   -w  --whitePolicy                  White policy (e.g. Serial, Leaf, Root, Tree)\n";
+    cout << "   -?  --help                         Edit config.h to set parameter\n";
 }
-void setEnvParameter(int &simulation_counts, int argc, char** argv) {
+void setEnvParameter(int argc, char** argv) {
     int opt;
     static struct option long_options[] = {
+        {"simCount", 0, 0, 'c'},
+        {"simTime", 0, 0, 't'},
+        {"threadNum", 0, 0, 'T'},
+        {"blackPolicy", 0, 0, 'b'},
+        {"whitePolicy", 0, 0, 'w'},
         {"help", 0, 0, '?'},
         {0, 0, 0, 0}};
-
-    while ((opt = getopt_long(argc, argv, "v:c:?", long_options, NULL)) != EOF)
+    
+    
+    while ((opt = getopt_long(argc, argv, "c:t:T:b:w:?", long_options, NULL)) != EOF)
     {
+        cout << char(opt) << '\n';
         switch (opt)
         {
-        case 'c':
-            simulation_counts = atoi(optarg);
-            break;
-        case '?':
-        default:
-            usage();
-            exit(0);
+            case 'c':
+                envParam.simulation_counts = atoi(optarg);
+                envParam.time = -1;
+                break;
+            case 't':
+                envParam.time = atoi(optarg);
+                envParam.simulation_counts = -1;
+                break;
+            case 'T':
+                envParam.thread_num = atoi(optarg);
+                break;
+            case 'b':
+                envParam.black_policy = optarg;
+                break;
+            case 'w':
+                envParam.white_policy = optarg;
+                break;
+            case '?':
+                usage();
+                exit(0);
+                break;
+            default:
+                exit(0);
         }
+    }
+    if (envParam.time >= 0 && envParam.simulation_counts >= 0) {
+        cout << "Can't set Count and Time simutaneously!\n";
+        exit(0);
     }
 }
 
 auto setPolicy(string policy) {
+    cout << policy << '\n';
     switch (policy[0]) {
         case 'S':
         case 's':
@@ -61,12 +97,17 @@ auto setPolicy(string policy) {
 int main(int argc, char *argv[]) {
 
     /***** Parameter Setting *****/
-    int simulation_counts = SIMULATION_COUNT;
+
+    // default parameters
+    envParam = {-1, 1000, 4, "Tree", "Serial"};
+    setEnvParameter(argc, argv);
+
+    int simulation_counts = envParam.simulation_counts;
     const int limitStep = LIMIT_STEP;
-    auto black_policy = setPolicy(BLACK_POLICY);
-    auto white_policy = setPolicy(WHITE_POLICY);
+    auto black_policy = setPolicy( envParam.black_policy );
+    auto white_policy = setPolicy( envParam.white_policy );
     
-    setEnvParameter(simulation_counts, argc, argv);
+    /***** Parameter Setting *****/
     
     Log playerLog;
     Log envirLog;
@@ -83,10 +124,10 @@ int main(int argc, char *argv[]) {
         PIECE p = cur_board.take_turn();
 
         if ( p == BLACK ) {
-            mv = player.take_action(cur_board, black_policy, playerLog);
+            mv = player.take_action(cur_board, black_policy, playerLog, envParam);
         }
         else {
-            mv = envir.take_action(cur_board, white_policy, envirLog);
+            mv = envir.take_action(cur_board, white_policy, envirLog, envParam);
         }
 
         // Game over
