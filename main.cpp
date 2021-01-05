@@ -12,8 +12,6 @@
 using namespace std;
 
 
-
-
 void usage() {
     cout << "Usage: mcts [options]\n";
     cout << "   -c  --simCount                     Simulation count per step\n";

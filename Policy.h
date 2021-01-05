@@ -5,10 +5,12 @@
 #include <map>
 #include <thread>
 #include "MCTS.h"
+#include "Log.h"
 
+using namespace std;
 class Policy {
 public:
-    static Pair MCTS_Serial(board &before, const PIECE &piece, const EnvParameter &env) {
+    static Pair MCTS_Serial(board &before, const PIECE &piece, const EnvParameter &env,  Log &log) {
 
         MonteCarloTree tree;
         tree.reset(before);
@@ -33,8 +35,9 @@ public:
                 diff_time = chrono::duration<double, milli>(end - start).count();
             }
         }
-        cout << "Serial count:" << tree.root->total_count << "\n";
-        
+        // cout << "Serial count:" << tree.root->total_count << "\n";
+        log.search_count = tree.root->total_count;
+
         if (PRINT_TREE)
             tree.root->showchild();
 
@@ -45,7 +48,7 @@ public:
     }
 
     /***** leaf parallelization *****/
-    static Pair MCTS_Parallel_Leaf(board &before, const PIECE &piece, const EnvParameter &env) { 
+    static Pair MCTS_Parallel_Leaf(board &before, const PIECE &piece, const EnvParameter &env,  Log &log) { 
         MonteCarloTree tree;
         tree.reset(before);
 
@@ -70,7 +73,8 @@ public:
                 count_sim++;
             }
         }
-        cout << "Parallel count:" << tree.root->total_count << "\n";
+        // cout << "Parallel count:" << tree.root->total_count << "\n";
+        log.search_count = tree.root->total_count;
 
         if (PRINT_TREE)
             tree.root->showchild();
@@ -146,7 +150,7 @@ public:
         }
 
     }
-    static Pair MCTS_Parallel_Root(board &before, const PIECE &piece,  const EnvParameter &env) {
+    static Pair MCTS_Parallel_Root(board &before, const PIECE &piece,  const EnvParameter &env,  Log &log) {
 
         MonteCarloTree trees[env.thread_num];
         for( int i = 0; i < env.thread_num; i++ ) {
@@ -179,7 +183,8 @@ public:
                 bag[move] += child[ child_idx ].total_count;
             }
         }
-        std::cout << "Parallel count: " << Vcount << "\n";
+        // std::cout << "Parallel count: " << Vcount << "\n";
+        log.search_count = Vcount;
 
         int maxCount = 0;
         auto end = chrono::steady_clock::now();
@@ -259,7 +264,7 @@ public:
             }
         }
     }
-    static Pair MCTS_Parallel_Tree(board &before, const PIECE &piece,  const EnvParameter &env) { 
+    static Pair MCTS_Parallel_Tree(board &before, const PIECE &piece,  const EnvParameter &env,  Log &log) { 
         MonteCarloTree tree;
         tree.reset(before);
 
@@ -276,7 +281,9 @@ public:
         /***** OpenMP *****/
         
 
-        cout << "Parallel count:" << tree.root->total_count << "\n";
+        // cout << "Parallel count:" << tree.root->total_count << "\n";
+        log.search_count = tree.root->total_count;
+
         if (PRINT_TREE)
             tree.root->showchild();
 

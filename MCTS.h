@@ -262,7 +262,7 @@ public:
 		root = { std::make_unique<TreeNode>() };
 		root->color = root_board.take_turn();
 		root->move = {-1, -1};
-		root->total_count.store(1);
+		root->total_count.store(0);
 		root->win_count.store(0);
 		root->child = nullptr;
 		root->child_size = 0;

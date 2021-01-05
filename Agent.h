@@ -9,10 +9,10 @@ class Agent {
 public:
     Agent(PIECE piece) : piece(piece), step(0) {};
 
-    Pair take_action(board &b, Pair (*Policy)(board&, const PIECE&,const EnvParameter&), Log &log,  EnvParameter &envParam) {
+    Pair take_action(board &b, Pair (*Policy)(board&, const PIECE&,const EnvParameter&, Log &log), Log &log,  EnvParameter &envParam) {
 
         auto start = chrono::steady_clock::now();
-        Pair mv = Policy(b, piece, envParam);
+        Pair mv = Policy(b, piece, envParam, log);
         auto end = chrono::steady_clock::now();
         auto diff_time = end - start;
 

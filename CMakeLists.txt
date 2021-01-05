@@ -31,17 +31,17 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
-
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 enable_testing()
 # Now simply link against gtest or gtest_main as needed. Eg
-add_executable(example test1.cpp)
-target_link_libraries(example gtest_main)
-add_test(NAME example_test COMMAND example)
+add_executable(MCTS_UnitTest MCTS_UnitTest.cpp)
+target_link_libraries(MCTS_UnitTest gtest_main)
+add_test(NAME MCTS_Test COMMAND MCTS_UnitTest)
 
 
 project(mcts)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fopenmp -O3 -g -Wall"   )
 add_executable(mcts main.cpp)
