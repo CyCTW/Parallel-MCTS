@@ -55,6 +55,6 @@ jobs:
         lcov --capture --directory . --output-file gtest_coverage.info
         genhtml gtest_coverage.info --output-directory CODE_COVERAGE
     - name: codecov
-      working-directory: ${{runner.workspace}}/build/CMakeFiles/MCTS_UnitTest.dir/test
+      working-directory: ${{runner.workspace}}
       shell: bash
       run: bash <(curl -s https://codecov.io/bash)
