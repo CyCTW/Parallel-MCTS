@@ -49,6 +49,6 @@ add_test(NAME MCTS_Test COMMAND MCTS_UnitTest)
 
 project(mcts)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fopenmp -O3 -g -Wall -fsanitize=leak"   )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fopenmp -O3 -g -Wall -fsanitize=leak --coverage"   )
 add_executable(mcts ${SRC}/main.cpp)
 #add_subdirectory(Google_tests)
