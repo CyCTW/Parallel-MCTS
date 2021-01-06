@@ -1,6 +1,5 @@
 ![](https://github.com/CyCTW/PP-Final_Project/workflows/ParallelMCTS/badge.svg)
 [![codecov](https://codecov.io/gh/CyCTW/Parallel-MCTS/branch/master/graph/badge.svg?token=LPORRSHSZT)](https://codecov.io/gh/CyCTW/Parallel-MCTS)
-![1](https://github-readme-stats.vercel.app/api/top-langs/?username=Naereen&theme=blue-green)
 
 # Parallel Monte Carlo Tree Search
 Implementation of Parallel Monte Carlo Tree Search with C++.
