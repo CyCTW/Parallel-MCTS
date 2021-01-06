@@ -45,7 +45,7 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest
       
-    - name: codecov
+    - name: buildCov
       working-directory: ${{runner.workspace}}/build/CMakeFiles/MCTS_UnitTest.dir/test
       shell: bash
       
@@ -54,5 +54,7 @@ jobs:
         gcov MCTS_UnitTest.cpp.gcno
         lcov --capture --directory . --output-file gtest_coverage.info
         genhtml gtest_coverage.info --output-directory CODE_COVERAGE
-        cd CODE_COVERAGE
-        bash <(curl -s https://codecov.io/bash)
+    - name: codecov
+      working-directory: ${{runner.workspace}}/build/CMakeFiles/MCTS_UnitTest.dir/test
+      shell: bash
+      run: bash <(curl -s https://codecov.io/bash)
