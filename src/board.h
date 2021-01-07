@@ -119,33 +119,24 @@ public:
 
 	board& operator =(const board &b) = default;
 
-	// operator torch::Tensor() {
-	// 	double b_[36];
-	// 	// copy board value
+	// board white_board() const {
+	// 	board wb;
 	// 	for(int i=0; i<36; i++)
-	// 		b_[i] = (*this)(i);
-
-	// 	return torch::from_blob(b_, {1, 36});
+	// 		if((*this)(i) == WHITE) 
+	// 			wb(i) = WHITE;
+	// 		else
+	// 			wb(i) = BLACK;				
+	// 	return wb;
 	// }
-
-	board white_board() const {
-		board wb;
-		for(int i=0; i<36; i++)
-			if((*this)(i) == WHITE) 
-				wb(i) = WHITE;
-			else
-				wb(i) = BLACK;				
-		return wb;
-	}
-	board black_board() const {
-		board bb;
-		for(int i=0; i<36; i++)
-			if((*this)(i) == BLACK) 
-				bb(i) = WHITE;
-			else
-				bb(i) = BLACK;				
-		return bb;
-	}
+	// board black_board() const {
+	// 	board bb;
+	// 	for(int i=0; i<36; i++)
+	// 		if((*this)(i) == BLACK) 
+	// 			bb(i) = WHITE;
+	// 		else
+	// 			bb(i) = BLACK;				
+	// 	return bb;
+	// }
 
 	// compare pieces on board
 	inline WIN_STATE compare_piece() const {
@@ -267,19 +258,7 @@ private:
 	// NEW!! Add new rules: no return moves after 3 times.
 	std::vector<char> check_move (const char &pos, const PIECE &piece)  {
 		std::vector<char> movable;
-		char forbidden_pos = 87;
 		
-		/*
-		if (step_stack[piece].size() >= 5) {
-			if (pos == step_stack[piece].back().next){
-				
-				forbidden_pos = step_stack[piece].back().prev;
-				
-				// step_stack[piece].clear();
-				// std::cerr << "Repeated move dected.\n";
-			}
-		}
-		*/
 		// 8 directions
 		char dir[8] {-7, -6, -5, -1, 1, 5, 6, 7};
 		const char no_move {0};
@@ -303,7 +282,7 @@ private:
 		for (auto &d : dir) {
 			if (d == no_move) continue;
 			auto next_pos = (*this)(pos + d);
-			if ( next_pos == SPACE && (int(pos + d) != int(forbidden_pos))){
+			if ( next_pos == SPACE ){
 				//std::cerr << int(pos+d) << ' ' << int(forbidden_pos) << '\n';
 				movable.push_back(pos + d);
 			}
@@ -343,105 +322,85 @@ public:
 		return ea;
 	}
 
-	EXEC_STATE check_Piece_onBoard (const PIECE &piece) const {
-		bool find = false;
+	// EXEC_STATE check_Piece_onBoard (const PIECE &piece) const {
+	// 	bool find = false;
 
-		for (int i = 0; i < SIZE; i++) {
-			if ( (*this)(i) == piece){
-				find = true; break;
-			}
-		}
-		if(find) return SUCCESS;
-		else return FAIL;
-	}
+	// 	for (int i = 0; i < SIZE; i++) {
+	// 		if ( (*this)(i) == piece){
+	// 			find = true; break;
+	// 		}
+	// 	}
+	// 	if(find) return SUCCESS;
+	// 	else return FAIL;
+	// }
 
 	// move or eat a piece
 	EXEC_STATE move(const char prev_pos, const char place_pos, const PIECE &piece) {
 		if (place_pos >= SIZE || place_pos < 0) return FAIL;
-		//if ((*this)(place_pos) != 0) return -1;
-
-	
-		// check repeated moves
-		// if (step_stack[piece].empty())
-		// 	step_stack[piece].push_back({prev_pos, place_pos});
-		// else if ( ((*this)(place_pos) == SPACE) && (step_stack[piece].back() == Pair{place_pos, prev_pos})) {
-		// 	step_stack[piece].push_back({prev_pos, place_pos});
-		// }
-		// else {
-		// 	step_stack[piece].clear();
-		// 	step_stack[piece].push_back({prev_pos, place_pos});
-		// }
 
 		(*this)(place_pos) = piece;
 		(*this)(prev_pos) = SPACE;
 
 		step++;
-		// if repeated move too much, lose
-		// if (step_stack[piece].size() >= repeat_move_limit) {
-		// 	std::cout << "Repeated Move!! Lose.\n";
-		// 	return FAIL;
-		// }
-		
-
 
 		return SUCCESS;
 	}
 private:
-	inline void reflect_vertical(char &pos) {
-		// change current pos after reflection
-		char x = pos / COL; char y = pos % COL;
-		pos = (5-x) * COL + y;
+// 	inline void reflect_vertical(char &pos) {
+// 		// change current pos after reflection
+// 		char x = pos / COL; char y = pos % COL;
+// 		pos = (5-x) * COL + y;
 		
-		for (int c = 0; c < COL; c++) {
-			std::swap(tile[0][c], tile[5][c]);
-			std::swap(tile[1][c], tile[4][c]);
-			std::swap(tile[2][c], tile[3][c]);
-		}
-	}
+// 		for (int c = 0; c < COL; c++) {
+// 			std::swap(tile[0][c], tile[5][c]);
+// 			std::swap(tile[1][c], tile[4][c]);
+// 			std::swap(tile[2][c], tile[3][c]);
+// 		}
+// 	}
 
-	inline void reflect_horizontal(char &pos) {
-		// change current pos after reflection
-		char x = pos / COL; char y = pos % COL;
-		pos = x * COL + (5-y);
+// 	inline void reflect_horizontal(char &pos) {
+// 		// change current pos after reflection
+// 		char x = pos / COL; char y = pos % COL;
+// 		pos = x * COL + (5-y);
 		
-		for (int r = 0; r < COL; r++) {
-			std::swap(tile[r][0], tile[r][5]);
-			std::swap(tile[r][1], tile[r][4]);
-			std::swap(tile[r][2], tile[r][3]);
+// 		for (int r = 0; r < COL; r++) {
+// 			std::swap(tile[r][0], tile[r][5]);
+// 			std::swap(tile[r][1], tile[r][4]);
+// 			std::swap(tile[r][2], tile[r][3]);
 
-		}
-	}
+// 		}
+// 	}
 
-	inline void transpose (char &pos) {
-		// change current pos after transpose
-		char x = pos / COL; char y = pos % COL;
-		pos = y * COL + x;
+// 	inline void transpose (char &pos) {
+// 		// change current pos after transpose
+// 		char x = pos / COL; char y = pos % COL;
+// 		pos = y * COL + x;
 		
-		for (int r = 0; r < COL; r++) {
-			for (int c = (r + 1); c < COL; c++) {
-				std::swap(tile[r][c], tile[c][r]);
-			}
-		}
-	}
+// 		for (int r = 0; r < COL; r++) {
+// 			for (int c = (r + 1); c < COL; c++) {
+// 				std::swap(tile[r][c], tile[c][r]);
+// 			}
+// 		}
+// 	}
 
-	inline void rotate_right (char &pos) { transpose(pos); reflect_horizontal(pos); }
+// 	inline void rotate_right (char &pos) { transpose(pos); reflect_horizontal(pos); }
 
-	inline void rotate_left (char &pos) { transpose(pos); reflect_vertical(pos); }
-public:
-	inline void flip_color() {
+// 	inline void rotate_left (char &pos) { transpose(pos); reflect_vertical(pos); }
+// public:
+// 	inline void flip_color() {
 
-		for (int r = 0; r < COL; r++) {
-			for (int c = 0; c < COL; c++ ) {
-				if (tile[r][c] == WHITE)
-					tile[r][c] = BLACK;
-				else if (tile[r][c] == BLACK)
-					tile[r][c] = WHITE; 
-			}
-		}
-		char tmp = 0;
-		reflect_horizontal(tmp);
-		reflect_vertical(tmp);
-	}
+// 		for (int r = 0; r < COL; r++) {
+// 			for (int c = 0; c < COL; c++ ) {
+// 				if (tile[r][c] == WHITE)
+// 					tile[r][c] = BLACK;
+// 				else if (tile[r][c] == BLACK)
+// 					tile[r][c] = WHITE; 
+// 			}
+// 		}
+// 		char tmp = 0;
+// 		reflect_horizontal(tmp);
+// 		reflect_vertical(tmp);
+// 	}
 
 public:
 /*

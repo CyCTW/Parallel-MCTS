@@ -86,36 +86,36 @@ public:
 
     /***** Root parallelization *****/
 
-    static void rootParallization(MonteCarloTree *tree) {
+    // static void rootParallization(MonteCarloTree *tree) {
 
-        // int count_sim = 0;
-        // for(count_sim = 0; count_sim < SIMULATION_COUNT; count_sim++) {
-        //     tree->tree_policy();
-        // }
-        auto start = chrono::steady_clock::now();
-        auto end = chrono::steady_clock::now();
-        auto diff_time = chrono::duration<double, milli>(end - start).count();
-        while (diff_time < SIMULATION_TIME - COLLECT_BAG_TIME)
-        {
-            tree->tree_policy();
-            end = chrono::steady_clock::now();
-            diff_time = chrono::duration<double, milli>(end - start).count();
-        }
-        // cout << "Count sim: " << count_sim << '\n';
-    }
-    static void rootParallelizationPthread(MonteCarloTree *trees) {
+    //     // int count_sim = 0;
+    //     // for(count_sim = 0; count_sim < SIMULATION_COUNT; count_sim++) {
+    //     //     tree->tree_policy();
+    //     // }
+    //     auto start = chrono::steady_clock::now();
+    //     auto end = chrono::steady_clock::now();
+    //     auto diff_time = chrono::duration<double, milli>(end - start).count();
+    //     while (diff_time < SIMULATION_TIME - COLLECT_BAG_TIME)
+    //     {
+    //         tree->tree_policy();
+    //         end = chrono::steady_clock::now();
+    //         diff_time = chrono::duration<double, milli>(end - start).count();
+    //     }
+    //     // cout << "Count sim: " << count_sim << '\n';
+    // }
+    // static void rootParallelizationPthread(MonteCarloTree *trees) {
 
-        std::thread workers[ THREAD_NUM ];
-        for(int i=1; i < THREAD_NUM; i++) {
-            workers[i] = std::thread(Policy::rootParallization, &trees[i]);
-        }
+    //     std::thread workers[ THREAD_NUM ];
+    //     for(int i=1; i < THREAD_NUM; i++) {
+    //         workers[i] = std::thread(Policy::rootParallization, &trees[i]);
+    //     }
         
-        Policy::rootParallization(&trees[0]);
-        for(int i=1; i < THREAD_NUM; i++) {
-            workers[i].join();
-        }
+    //     Policy::rootParallization(&trees[0]);
+    //     for(int i=1; i < THREAD_NUM; i++) {
+    //         workers[i].join();
+    //     }
 
-    }
+    // }
     static void rootParallelizationOMP(MonteCarloTree *trees, const EnvParameter &env) {
 
         omp_set_num_threads(env.thread_num);
@@ -205,35 +205,35 @@ public:
 
 
     /***** Tree parallelization *****/    
-    static void treeParallization(MonteCarloTree *tree) {
-        // int count_sim = 0;
-        // for(count_sim = 0; count_sim < SIMULATION_COUNT; count_sim++) {
-        //     tree->parallelTree_tree_policy();
-        // }
-        // cout << "Count sim: " << count_sim << '\n';
-        auto start = chrono::steady_clock::now();
-        auto end = chrono::steady_clock::now();
-        auto diff_time = chrono::duration<double, milli>(end - start).count();
-        while (diff_time < SIMULATION_TIME)
-        {
-            tree->parallelTree_tree_policy();
-            end = chrono::steady_clock::now();
-            diff_time = chrono::duration<double, milli>(end - start).count();
-        }
-    }
-    static void treeParallizationPthread(MonteCarloTree *tree) {
+    // static void treeParallization(MonteCarloTree *tree) {
+    //     // int count_sim = 0;
+    //     // for(count_sim = 0; count_sim < SIMULATION_COUNT; count_sim++) {
+    //     //     tree->parallelTree_tree_policy();
+    //     // }
+    //     // cout << "Count sim: " << count_sim << '\n';
+    //     auto start = chrono::steady_clock::now();
+    //     auto end = chrono::steady_clock::now();
+    //     auto diff_time = chrono::duration<double, milli>(end - start).count();
+    //     while (diff_time < SIMULATION_TIME)
+    //     {
+    //         tree->parallelTree_tree_policy();
+    //         end = chrono::steady_clock::now();
+    //         diff_time = chrono::duration<double, milli>(end - start).count();
+    //     }
+    // }
+    // static void treeParallizationPthread(MonteCarloTree *tree) {
         
-        std::thread workers[THREAD_NUM];
-        for(int i=1; i<THREAD_NUM; i++) {
-            workers[i] = std::thread(Policy::treeParallization, tree);
-        }
+    //     std::thread workers[THREAD_NUM];
+    //     for(int i=1; i<THREAD_NUM; i++) {
+    //         workers[i] = std::thread(Policy::treeParallization, tree);
+    //     }
         
-        Policy::treeParallization(tree);
-        for(int i=1; i<THREAD_NUM; i++) {
-            workers[i].join();
-        }
+    //     Policy::treeParallization(tree);
+    //     for(int i=1; i<THREAD_NUM; i++) {
+    //         workers[i].join();
+    //     }
 
-    }
+    // }
     static void treeParallizationOMP(MonteCarloTree *tree,  const EnvParameter &env) {
         omp_set_num_threads(env.thread_num);
 
@@ -270,7 +270,7 @@ public:
 
         // std::cout << "MCTS take action\n";
 
-        cout << "Simulation time: " << env.simulation_counts << '\n';
+        // cout << "Simulation time: " << env.simulation_counts << '\n';
 
         /***** Pthread *****/
         // treeParallizationPthread(&tree);

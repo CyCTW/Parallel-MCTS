@@ -84,22 +84,22 @@ public:
 	}
 
 
-	bool GreedyRollout(board &b, PIECE color) {
-		std::vector<Pair> ea { b.find_piece(color, EAT) };
-		std::vector<Pair> mv { b.find_piece(color, MOVE) };
+	// bool GreedyRollout(board &b, PIECE color) {
+	// 	std::vector<Pair> ea { b.find_piece(color, EAT) };
+	// 	std::vector<Pair> mv { b.find_piece(color, MOVE) };
 			
-		if (!ea.empty()) {
-			std::shuffle(ea.begin(), ea.end(), eng);
-			b.move(ea[0].prev, ea[0].next, color);
-		}
-		else if (!mv.empty()) {
-			std::shuffle(mv.begin(), mv.end(), eng);
-			b.move(mv[0].prev, mv[0].next, color);
-		} else {
-			return false;
-		}
-		return true;
-	}
+	// 	if (!ea.empty()) {
+	// 		std::shuffle(ea.begin(), ea.end(), eng);
+	// 		b.move(ea[0].prev, ea[0].next, color);
+	// 	}
+	// 	else if (!mv.empty()) {
+	// 		std::shuffle(mv.begin(), mv.end(), eng);
+	// 		b.move(mv[0].prev, mv[0].next, color);
+	// 	} else {
+	// 		return false;
+	// 	}
+	// 	return true;
+	// }
 	bool RandomRollout(board &b, PIECE color) {
 		std::vector<Pair> mvs { b.get_available_move(color) };
 
