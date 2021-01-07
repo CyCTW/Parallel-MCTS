@@ -1,8 +1,10 @@
 #include "gtest/gtest.h"
 
+#include "../src/Agent.h"
 #include "../src/board.h"
 #include "../src/Policy.h"
 #include "../src/MCTS.h"
+#include "../src/Log.h"
 using namespace std;
 
 TEST(SimulationCount, SerialSimulationCount) {
@@ -49,6 +51,14 @@ TEST(SimulationCount, ParallelTreeSimulationCount) {
 
 	Policy::MCTS_Parallel_Tree(b, p, env, log);
 	EXPECT_EQ(log.search_count, simulation_count * env.thread_num);
+}
+TEST(Simulation, Log) {
+	Log l;
+	l.printLog();
+	Agent a(BLACK);
+	board b;
+	EnvParameter e;
+	a.take_action(b, Policy::MCTS_Serial, l, e);
 }
 GTEST_API_ int main(int argc, char **argv) {
   printf("Running main() from gtest_main.cc\n");
