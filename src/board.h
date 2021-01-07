@@ -119,25 +119,6 @@ public:
 
 	board& operator =(const board &b) = default;
 
-	// board white_board() const {
-	// 	board wb;
-	// 	for(int i=0; i<36; i++)
-	// 		if((*this)(i) == WHITE) 
-	// 			wb(i) = WHITE;
-	// 		else
-	// 			wb(i) = BLACK;				
-	// 	return wb;
-	// }
-	// board black_board() const {
-	// 	board bb;
-	// 	for(int i=0; i<36; i++)
-	// 		if((*this)(i) == BLACK) 
-	// 			bb(i) = WHITE;
-	// 		else
-	// 			bb(i) = BLACK;				
-	// 	return bb;
-	// }
-
 	// compare pieces on board
 	inline WIN_STATE compare_piece() const {
 		unsigned b_num = 0, w_num = 0;
@@ -322,17 +303,6 @@ public:
 		return ea;
 	}
 
-	// EXEC_STATE check_Piece_onBoard (const PIECE &piece) const {
-	// 	bool find = false;
-
-	// 	for (int i = 0; i < SIZE; i++) {
-	// 		if ( (*this)(i) == piece){
-	// 			find = true; break;
-	// 		}
-	// 	}
-	// 	if(find) return SUCCESS;
-	// 	else return FAIL;
-	// }
 
 	// move or eat a piece
 	EXEC_STATE move(const char prev_pos, const char place_pos, const PIECE &piece) {
@@ -345,62 +315,6 @@ public:
 
 		return SUCCESS;
 	}
-private:
-// 	inline void reflect_vertical(char &pos) {
-// 		// change current pos after reflection
-// 		char x = pos / COL; char y = pos % COL;
-// 		pos = (5-x) * COL + y;
-		
-// 		for (int c = 0; c < COL; c++) {
-// 			std::swap(tile[0][c], tile[5][c]);
-// 			std::swap(tile[1][c], tile[4][c]);
-// 			std::swap(tile[2][c], tile[3][c]);
-// 		}
-// 	}
-
-// 	inline void reflect_horizontal(char &pos) {
-// 		// change current pos after reflection
-// 		char x = pos / COL; char y = pos % COL;
-// 		pos = x * COL + (5-y);
-		
-// 		for (int r = 0; r < COL; r++) {
-// 			std::swap(tile[r][0], tile[r][5]);
-// 			std::swap(tile[r][1], tile[r][4]);
-// 			std::swap(tile[r][2], tile[r][3]);
-
-// 		}
-// 	}
-
-// 	inline void transpose (char &pos) {
-// 		// change current pos after transpose
-// 		char x = pos / COL; char y = pos % COL;
-// 		pos = y * COL + x;
-		
-// 		for (int r = 0; r < COL; r++) {
-// 			for (int c = (r + 1); c < COL; c++) {
-// 				std::swap(tile[r][c], tile[c][r]);
-// 			}
-// 		}
-// 	}
-
-// 	inline void rotate_right (char &pos) { transpose(pos); reflect_horizontal(pos); }
-
-// 	inline void rotate_left (char &pos) { transpose(pos); reflect_vertical(pos); }
-// public:
-// 	inline void flip_color() {
-
-// 		for (int r = 0; r < COL; r++) {
-// 			for (int c = 0; c < COL; c++ ) {
-// 				if (tile[r][c] == WHITE)
-// 					tile[r][c] = BLACK;
-// 				else if (tile[r][c] == BLACK)
-// 					tile[r][c] = WHITE; 
-// 			}
-// 		}
-// 		char tmp = 0;
-// 		reflect_horizontal(tmp);
-// 		reflect_vertical(tmp);
-// 	}
 
 public:
 /*

@@ -8,7 +8,7 @@
 using namespace std;
 
 TEST(SimulationCount, SerialSimulationCount) {
-	const int simulation_count = 1000;
+	const int simulation_count = 100;
 	board b;
 	PIECE p = BLACK;
 	EnvParameter env = {simulation_count, -1, 0, "",""};
@@ -18,7 +18,7 @@ TEST(SimulationCount, SerialSimulationCount) {
 	EXPECT_EQ(log.search_count, simulation_count);
 }	
 TEST(SimulationCount, ParallelLeafSimulationCount) {
-	const int simulation_count = 1000;
+	const int simulation_count = 100;
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
@@ -30,7 +30,7 @@ TEST(SimulationCount, ParallelLeafSimulationCount) {
 }
 
 TEST(SimulationCount, ParallelRootSimulationCount) {
-	const int simulation_count = 1000;
+	const int simulation_count = 100;
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
@@ -42,7 +42,7 @@ TEST(SimulationCount, ParallelRootSimulationCount) {
 
 }
 TEST(SimulationCount, ParallelTreeSimulationCount) {
-	const int simulation_count = 1000;
+	const int simulation_count = 100;
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
@@ -52,6 +52,56 @@ TEST(SimulationCount, ParallelTreeSimulationCount) {
 	Policy::MCTS_Parallel_Tree(b, p, env, log);
 	EXPECT_EQ(log.search_count, simulation_count * env.thread_num);
 }
+
+TEST(SimulationTime, SerialSimulationTime) {
+	const double time = 0.5;
+	
+	board b;
+	PIECE p = BLACK;
+	EnvParameter env = {-1, time, 0, "",""};
+	Log log;
+
+	Policy::MCTS_Serial(b, p, env, log);
+	// EXPECT_EQ(log.search_count, simulation_count);
+}	
+TEST(SimulationTime, ParallelLeafSimulationTime) {
+	const double time = 0.5;
+
+	const int thread_num = 4;
+	board b;
+	PIECE p = BLACK;
+	EnvParameter env = {-1, time, thread_num, "",""};
+	Log log;
+
+	Policy::MCTS_Parallel_Leaf(b, p, env, log);
+	// EXPECT_EQ(log.search_count, simulation_count * env.thread_num);
+}
+
+TEST(SimulationTime, ParallelRootSimulationTime) {
+	const double time = 0.5;
+
+	const int thread_num = 4;
+	board b;
+	PIECE p = BLACK;
+	EnvParameter env = {-1, time, thread_num, "",""};
+	Log log;
+
+	Policy::MCTS_Parallel_Root(b, p, env, log);
+	// EXPECT_EQ(log.search_count, simulation_count * env.thread_num);
+
+}
+TEST(SimulationTime, ParallelTreeSimulationTime) {
+	const double time = 0.5;
+	const int thread_num = 4;
+	board b;
+	PIECE p = BLACK;
+	EnvParameter env = {-1, time, thread_num, "",""};
+	Log log;
+
+	Policy::MCTS_Parallel_Tree(b, p, env, log);
+	// EXPECT_EQ(log.search_count, simulation_count * env.thread_num);
+}
+
 TEST(Simulation, Log) {
 	Log l;
 	l.printLog();
@@ -59,6 +109,7 @@ TEST(Simulation, Log) {
 	board b;
 	EnvParameter e;
 	a.take_action(b, Policy::MCTS_Serial, l, e);
+	cout << b<< '\n';
 }
 GTEST_API_ int main(int argc, char **argv) {
   printf("Running main() from gtest_main.cc\n");
