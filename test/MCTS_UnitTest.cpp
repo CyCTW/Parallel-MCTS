@@ -22,7 +22,7 @@ TEST(SimulationCount, ParallelLeafSimulationCount) {
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {simulation_count, -1, thread_num, "","",  "openmp"};
+	EnvParameter env = {simulation_count, -1, thread_num, "","",  "openmp", "openmp"};
 	Log log;
 
 	Policy::MCTS_Parallel_Leaf(b, p, env, log);
@@ -34,7 +34,7 @@ TEST(SimulationCount, ParallelRootSimulationCount) {
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {simulation_count, -1, thread_num, "","",  "openmp"};
+	EnvParameter env = {simulation_count, -1, thread_num, "","",  "openmp", "openmp"};
 	Log log;
 
 	Policy::MCTS_Parallel_Root(b, p, env, log);
@@ -46,7 +46,43 @@ TEST(SimulationCount, ParallelTreeSimulationCount) {
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {simulation_count, -1, thread_num, "","",  "openmp"};
+	EnvParameter env = {simulation_count, -1, thread_num, "","",  "openmp", "openmp"};
+	Log log;
+
+	Policy::MCTS_Parallel_Tree(b, p, env, log);
+	EXPECT_EQ(log.search_count, simulation_count * env.thread_num);
+}
+
+TEST(SimulationCount, ParallelLeafSimulationCountPthread) {
+	const int simulation_count = 100;
+	const int thread_num = 4;
+	board b;
+	PIECE p = BLACK;
+	EnvParameter env = {simulation_count, -1, thread_num, "","",  "pthread", "pthread"};
+	Log log;
+
+	Policy::MCTS_Parallel_Leaf(b, p, env, log);
+	EXPECT_EQ(log.search_count, simulation_count * env.thread_num);
+}
+
+TEST(SimulationCount, ParallelRootSimulationCountPthread) {
+	const int simulation_count = 100;
+	const int thread_num = 4;
+	board b;
+	PIECE p = BLACK;
+	EnvParameter env = {simulation_count, -1, thread_num, "","",  "pthread", "pthread"};
+	Log log;
+
+	Policy::MCTS_Parallel_Root(b, p, env, log);
+	EXPECT_EQ(log.search_count, simulation_count * env.thread_num);
+
+}
+TEST(SimulationCount, ParallelTreeSimulationCountPthread) {
+	const int simulation_count = 100;
+	const int thread_num = 4;
+	board b;
+	PIECE p = BLACK;
+	EnvParameter env = {simulation_count, -1, thread_num, "","",  "pthread", "pthread"};
 	Log log;
 
 	Policy::MCTS_Parallel_Tree(b, p, env, log);
@@ -107,8 +143,9 @@ TEST(Simulation, Log) {
 	l.printLog();
 	Agent a(BLACK);
 	board b;
-	EnvParameter e;
-	a.take_action(b, Policy::MCTS_Serial, l, e);
+	EnvParameter env = {100, -1, 4, "","",  "openmp"};
+
+	a.take_action(b, Policy::MCTS_Serial, l, env);
 	cout << b << '\n';
 }
 GTEST_API_ int main(int argc, char **argv) {
