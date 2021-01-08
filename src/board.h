@@ -24,6 +24,10 @@ struct EnvParameter{
     int thread_num;
     std::string black_policy;
     std::string white_policy;
+	std::string black_method;
+	std::string white_method;
+
+
 } envParam;
 class Pair {
 public:

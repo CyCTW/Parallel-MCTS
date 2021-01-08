@@ -11,14 +11,19 @@
 
 using namespace std;
 
-
 void usage() {
     cout << "Usage: mcts [options]\n";
+    cout << "\nNote: -c (count) & -t (time) options can't be specified simultaneously.\n\n";
     cout << "   -c  --simCount                     Simulation count per step\n";
     cout << "   -t  --simTime                      Simulation time per step\n";
     cout << "   -T  --threadNum                    Number of thread num\n";
-    cout << "   -b  --blackPolicy                  Black policy (e.g. Serial, Leaf, Root, Tree)\n";
-    cout << "   -w  --whitePolicy                  White policy (e.g. Serial, Leaf, Root, Tree)\n";
+    cout << "   -p  --policy                       Black & White policy (choice: Serial, Leaf, Root, Tree, defulat: Tree)\n"\
+            "                        <Policy> set both Black and White Policy\n"\
+            "                        <Policy> <Policy> set Black and White Policy respectively\n";
+
+    cout << "   -m  --method                       methods ( choice: openmp, pthread, default: openmp )\n"\
+            "                        <Method> set both Black and White Method\n"\
+            "                        <Method> <Method> set Black and White Method respectively\n";
     cout << "   -?  --help                         Edit config.h to set parameter\n";
 }
 void setEnvParameter(int argc, char** argv) {
@@ -27,15 +32,16 @@ void setEnvParameter(int argc, char** argv) {
         {"simCount", 0, 0, 'c'},
         {"simTime", 0, 0, 't'},
         {"threadNum", 0, 0, 'T'},
-        {"blackPolicy", 0, 0, 'b'},
-        {"whitePolicy", 0, 0, 'w'},
+        {"policy", 0, 0, 'p'},
+        {"method", 0, 0, 'm'},
         {"help", 0, 0, '?'},
         {0, 0, 0, 0}};
-    
-    
-    while ((opt = getopt_long(argc, argv, "c:t:T:b:w:?", long_options, NULL)) != EOF)
+
+    while ((opt = getopt_long(argc, argv, "c:t:T:p:m:?", long_options, NULL)) != EOF)
     {
-        cout << char(opt) << '\n';
+        // std::string argPolicy = optarg;
+        cout << "argC: " << argc << '\n';
+        // cout << "argV: " << string(argv) << '\n';
         switch (opt)
         {
             case 'c':
@@ -49,11 +55,14 @@ void setEnvParameter(int argc, char** argv) {
             case 'T':
                 envParam.thread_num = atoi(optarg);
                 break;
-            case 'b':
+            case 'p':
                 envParam.black_policy = optarg;
-                break;
-            case 'w':
                 envParam.white_policy = optarg;
+                break;
+            case 'm':
+                envParam.black_method =  optarg;
+                envParam.white_method =  optarg;
+
                 break;
             case '?':
                 usage();
@@ -97,13 +106,21 @@ int main(int argc, char *argv[]) {
     /***** Parameter Setting *****/
 
     // default parameters
-    envParam = {-1, 1000, 4, "Tree", "Serial"};
+    envParam = {1000, -1, 4, "Tree", "Serial", "openmp", "openmp"};
     setEnvParameter(argc, argv);
-
+    cout << "simulationCount: " << envParam.simulation_counts << '\n';
+    cout << "time: " << envParam.time << '\n';
+    cout << "thread num: " << envParam.thread_num << '\n';
+    cout << "Black policy: " << envParam.black_policy << '\n';
+    cout << "White policy: " << envParam.white_policy << '\n';
+    cout << "Black method: " << envParam.black_method << '\n';
+    cout << "White method: " << envParam.white_method << '\n';
+    cout << "\n\n";
     const int limitStep = LIMIT_STEP;
     auto black_policy = setPolicy( envParam.black_policy );
     auto white_policy = setPolicy( envParam.white_policy );
     
+    return 0;
     /***** Parameter Setting *****/
     
     Log playerLog;
@@ -140,7 +157,6 @@ int main(int argc, char *argv[]) {
     cout << "winner:  ";
     if (outcome == BLACK_WIN) {
         cout << "Black\n";
-
     } else if (outcome == WHITE_WIN) {
         cout << "White\n";
     } else {
@@ -152,7 +168,5 @@ int main(int argc, char *argv[]) {
     
     cout << "Envir\n\n";
     envirLog.printLog();
-
-   
 
 }

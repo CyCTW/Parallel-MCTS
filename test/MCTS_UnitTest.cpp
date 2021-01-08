@@ -11,7 +11,7 @@ TEST(SimulationCount, SerialSimulationCount) {
 	const int simulation_count = 100;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {simulation_count, -1, 0, "",""};
+	EnvParameter env = {simulation_count, -1, 0, "","", "openmp"};
 	Log log;
 
 	Policy::MCTS_Serial(b, p, env, log);
@@ -22,7 +22,7 @@ TEST(SimulationCount, ParallelLeafSimulationCount) {
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {simulation_count, -1, thread_num, "",""};
+	EnvParameter env = {simulation_count, -1, thread_num, "","",  "openmp"};
 	Log log;
 
 	Policy::MCTS_Parallel_Leaf(b, p, env, log);
@@ -34,7 +34,7 @@ TEST(SimulationCount, ParallelRootSimulationCount) {
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {simulation_count, -1, thread_num, "",""};
+	EnvParameter env = {simulation_count, -1, thread_num, "","",  "openmp"};
 	Log log;
 
 	Policy::MCTS_Parallel_Root(b, p, env, log);
@@ -46,7 +46,7 @@ TEST(SimulationCount, ParallelTreeSimulationCount) {
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {simulation_count, -1, thread_num, "",""};
+	EnvParameter env = {simulation_count, -1, thread_num, "","",  "openmp"};
 	Log log;
 
 	Policy::MCTS_Parallel_Tree(b, p, env, log);
@@ -58,7 +58,7 @@ TEST(SimulationTime, SerialSimulationTime) {
 	
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {-1, time, 0, "",""};
+	EnvParameter env = {-1, time, 0, "","",  "openmp"};
 	Log log;
 
 	Policy::MCTS_Serial(b, p, env, log);
@@ -70,7 +70,7 @@ TEST(SimulationTime, ParallelLeafSimulationTime) {
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {-1, time, thread_num, "",""};
+	EnvParameter env = {-1, time, thread_num, "","",  "openmp"};
 	Log log;
 
 	Policy::MCTS_Parallel_Leaf(b, p, env, log);
@@ -83,7 +83,7 @@ TEST(SimulationTime, ParallelRootSimulationTime) {
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {-1, time, thread_num, "",""};
+	EnvParameter env = {-1, time, thread_num, "","",  "openmp"};
 	Log log;
 
 	Policy::MCTS_Parallel_Root(b, p, env, log);
@@ -95,7 +95,7 @@ TEST(SimulationTime, ParallelTreeSimulationTime) {
 	const int thread_num = 4;
 	board b;
 	PIECE p = BLACK;
-	EnvParameter env = {-1, time, thread_num, "",""};
+	EnvParameter env = {-1, time, thread_num, "","",  "openmp"};
 	Log log;
 
 	Policy::MCTS_Parallel_Tree(b, p, env, log);
@@ -109,7 +109,7 @@ TEST(Simulation, Log) {
 	board b;
 	EnvParameter e;
 	a.take_action(b, Policy::MCTS_Serial, l, e);
-	cout << b<< '\n';
+	cout << b << '\n';
 }
 GTEST_API_ int main(int argc, char **argv) {
   printf("Running main() from gtest_main.cc\n");

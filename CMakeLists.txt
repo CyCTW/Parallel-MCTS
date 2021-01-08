@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
+option(COVERAGE "COVERAGE" OFF)
+
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
@@ -48,7 +50,9 @@ target_link_libraries(MCTS_UnitTest gtest_main)
 add_test(NAME MCTS_Test COMMAND MCTS_UnitTest)
 
 project(mcts)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fopenmp -O3 -g -Wall -fsanitize=leak --coverage"   )
+if (COVERAGE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fopenmp -O3 -g -Wall -fsanitize=leak --coverage"   )
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fopenmp -O3 -g -Wall"   )
+endif()
 add_executable(mcts ${SRC}/main.cpp)
-#add_subdirectory(Google_tests)

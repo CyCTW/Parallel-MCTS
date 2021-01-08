@@ -7,6 +7,8 @@
 #include <time.h>
 #include <climits>
 #include <omp.h>
+#include <thread>
+
 // #define THREAD_NUM 4
 
 class MonteCarloTree {
@@ -181,8 +183,36 @@ public:
 		backpropogate(result, path);
 	}
 
+	void leafParallel(board b, std::vector<TreeNode*> &path) {
+		auto result = simulate(b);
+		backpropogate(result, path);
+	}
 
-	void parallelLeaf_tree_policy() {
+	void leafOMP(board b, std::vector<TreeNode*> &path, EnvParameter env) {
+        omp_set_num_threads(env.thread_num);
+        
+        #pragma omp parallel for
+        for (int i=0; i < env.thread_num; ++i){
+
+            auto result = simulate(b);
+
+            #pragma omp critical
+            backpropogate(result, path);
+        }
+    }
+	void leafPthread(board b, std::vector<TreeNode*> &path, EnvParameter env) {
+		std::thread workers[ env.thread_num ];
+		for(int i=1; i < env.thread_num; i++) {
+			workers[i] = std::thread(&MonteCarloTree::leafParallel, this, b, std::ref(path));
+		}
+		
+		leafParallel(b, path);
+		for(int i=1; i < env.thread_num; i++) {
+			workers[i].join();
+		}
+	}
+
+	void parallelLeaf_tree_policy(const EnvParameter &env) {
 		// may have problem
 		// int CountInSimulation = 0;
 		board b {root_board};
@@ -210,14 +240,21 @@ public:
 				return;
 			}
 		}
-		omp_set_num_threads(THREAD_NUM);
-		#pragma omp parallel for
-		for (int i=0; i<THREAD_NUM; ++i){
 
-			auto result = simulate(b);
-
-			#pragma omp critical
-			backpropogate(result, path);
+		if (root->color == BLACK) {
+			if (env.black_method[0] == 'o') {	
+				leafOMP(b, path, env);
+			}
+			else if (env.black_method[0] == 'p') {
+				leafPthread(b, path, env);
+			}
+		} else {
+			if (env.white_method[0] == 'o') {	
+				leafOMP(b, path, env);
+			}
+			else if (env.white_method[0] == 'p') {
+				leafPthread(b, path, env);
+			}
 		}
 		
 	}

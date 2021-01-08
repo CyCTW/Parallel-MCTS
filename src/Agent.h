@@ -18,7 +18,7 @@ public:
 
         /*** Log Storage ***/
         log.cost_time += chrono::duration <double, milli> (diff_time).count();
-        log.search_count += SIMULATION_COUNT;
+        log.search_count += envParam.simulation_counts;
         /*** Log Storage ***/
         
 
