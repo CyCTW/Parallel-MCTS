@@ -46,7 +46,7 @@ jobs:
       run: ctest
       
     - name: buildCov
-      working-directory: ${{runner.workspace}}/build/CMakeFiles/MCTS_UnitTest.dir/test
+      working-directory: ${{runner.workspace}}/build/CMakeFiles/MCTS_UnitTest.dir/unittest
       shell: bash
       
       run: |
