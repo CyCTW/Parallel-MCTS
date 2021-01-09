@@ -17,6 +17,9 @@ public:
 
         MonteCarloTree tree;
         tree.reset(before);
+        auto start = chrono::steady_clock::now();
+        auto end = chrono::steady_clock::now();
+        auto diff_time = chrono::duration<double, milli>(end - start).count();
 
         if ( env.simulation_counts > 0 ) {
             int count_sim = 0;
@@ -28,9 +31,7 @@ public:
 
         }
         else if ( env.time > 0 ){
-            auto start = chrono::steady_clock::now();
-            auto end = chrono::steady_clock::now();
-            auto diff_time = chrono::duration<double, milli>(end - start).count();
+            
             while(diff_time < env.time ){
                 tree.tree_policy();
                 end = chrono::steady_clock::now();
@@ -38,6 +39,7 @@ public:
             }
         }
         log.search_count += tree.root->total_count;
+        log.cost_time += diff_time;
 
         if (PRINT_TREE)
             tree.root->showchild();
@@ -75,6 +77,7 @@ public:
         }
         // cout << "Parallel count:" << tree.root->total_count << "\n";
         log.search_count = tree.root->total_count;
+        log.cost_time += diff_time;
 
         if (PRINT_TREE)
             tree.root->showchild();
@@ -93,6 +96,7 @@ public:
         }
 
         Pair best_move;
+        auto start = chrono::steady_clock::now();
         if (piece == BLACK) {
             if(env.black_method[0] == 'p')
                 ParallelRoot::Pthread(trees, env);
@@ -104,8 +108,8 @@ public:
             else if (env.white_method[0] == 'o')
                 ParallelRoot::OMP(trees, env);
         }
-
-        auto start = chrono::steady_clock::now();
+        auto end = chrono::steady_clock::now();
+        auto diff_time = chrono::duration<double, milli>(end-start).count();
 
         map<Pair, double> bag;
         bag.clear();
@@ -127,13 +131,10 @@ public:
                 bag[move] += child[ child_idx ].total_count;
             }
         }
-        // std::cout << "Parallel count: " << Vcount << "\n";
         log.search_count = Vcount;
+        log.cost_time += diff_time;
 
         int maxCount = 0;
-        auto end = chrono::steady_clock::now();
-        auto diff_time = end - start;
-        // std::cout << "collect bag time : " << chrono::duration<double, milli>(diff_time).count() << "\n";
         for(auto mp : bag) {
             if (PRINT_TREE)
                 std::cout << (int)mp.first.prev << ", " << (int)mp.first.next << ":  " << mp.second << '\n';
@@ -153,8 +154,7 @@ public:
         MonteCarloTree tree;
         tree.reset(before);
 
-        // std::cout << "MCTS take action\n";
-        // cout << "Simulation time: " << env.simulation_counts << '\n';
+        auto start = chrono::steady_clock::now();
         if (piece == BLACK) {
             if (env.black_method[0] == 'p') {
                 ParallelTree::Pthread(&tree, env);
@@ -168,9 +168,11 @@ public:
                 ParallelTree::OMP(&tree, env);
             }
         }
-
+        auto end = chrono::steady_clock::now();
+        auto diff_time = chrono::duration<double, milli>(end-start).count();
         // cout << "Parallel count:" << tree.root->total_count << "\n";
         log.search_count = tree.root->total_count;
+        log.cost_time += diff_time;
 
         if (PRINT_TREE)
             tree.root->showchild();

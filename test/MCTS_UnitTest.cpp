@@ -109,40 +109,40 @@ namespace {
 namespace {
 	TEST_F(MonteCarloTreeTest, SerialSimulationTime) {
 		SetPthread();
-		SetTime(5);
+		SetTime(2000);
 		SetEnv();
 
 		a.take_action(b, Policy::MCTS_Serial, log, env);
-		double err = 5;
+		double err = 500;
 		EXPECT_LT(log.cost_time, time + err);
 	}	
 	TEST_F(MonteCarloTreeTest, ParallelLeafSimulationTime) {
 		SetPthread();
-		SetTime(5);
+		SetTime(2000);
 		SetEnv();
 		
 		a.take_action(b, Policy::MCTS_Parallel_Leaf, log, env);
-		double err = 5;
+		double err = 500;
 		EXPECT_LT(log.cost_time, time + err);
 	}
 
 	TEST_F(MonteCarloTreeTest, ParallelRootSimulationTime) {
 		SetPthread();
-		SetTime(5);
+		SetTime(2000);
 		SetEnv();
 
 		a.take_action(b, Policy::MCTS_Parallel_Root, log, env);
-		double err = 5;
+		double err = 500;
 		EXPECT_LT(log.cost_time, time + err);
 	}
 
 	TEST_F(MonteCarloTreeTest, ParallelTreeSimulationTime) {
 		SetPthread();
-		SetTime(5);
+		SetTime(2000);
 		SetEnv();
 
 		a.take_action(b, Policy::MCTS_Parallel_Tree, log, env);
-		double err = 5;
+		double err = 500;
 		EXPECT_LT(log.cost_time, time + err);
 	}
 }
