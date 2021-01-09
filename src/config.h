@@ -20,7 +20,7 @@ void usage() {
     cout << "Usage: mcts [options]\n";
     cout << "\nNote: -c (count) & -t (time) options can't be specified simultaneously.\n\n";
     cout << "   -c  --simCount   <simulationCount>           Set simulation count per step\n";
-    cout << "   -t  --simTime    <simulationTime>            Set simulation time per step\n";
+    cout << "   -t  --simTime    <simulationTime (second)>   Set simulation time per step\n";
     cout << "   -T  --threadNum  <threadNum>                 Set number of thread num\n";
     cout << "   -p  --policy     <blackAndWhitePolicy>       Set Player's policy \n"\
             "                    <blackPolicy> <whitePolicy> ( choice: Serial, Leaf, Root, Tree. default: Tree Serial)\n";
