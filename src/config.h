@@ -19,17 +19,15 @@ struct EnvParameter{
 void usage() {
     cout << "Usage: mcts [options]\n";
     cout << "\nNote: -c (count) & -t (time) options can't be specified simultaneously.\n\n";
-    cout << "   -c  --simCount                     Simulation count per step\n";
-    cout << "   -t  --simTime                      Simulation time per step\n";
-    cout << "   -T  --threadNum                    Number of thread num\n";
-    cout << "   -p  --policy                       Black & White policy (choice: Serial, Leaf, Root, Tree, defulat: Tree)\n"\
-            "                        <Policy> set both Black and White Policy\n"\
-            "                        <Policy> <Policy> set Black and White Policy respectively\n";
+    cout << "   -c  --simCount   <simulationCount>           Set simulation count per step\n";
+    cout << "   -t  --simTime    <simulationTime>            Set simulation time per step\n";
+    cout << "   -T  --threadNum  <threadNum>                 Set number of thread num\n";
+    cout << "   -p  --policy     <blackAndWhitePolicy>       Set Player's policy \n"\
+            "                    <blackPolicy> <whitePolicy> ( choice: Serial, Leaf, Root, Tree. default: Tree Serial)\n";
 
-    cout << "   -m  --method                       methods ( choice: openmp, pthread, default: openmp )\n"\
-            "                        <Method> set both Black and White Method\n"\
-            "                        <Method> <Method> set Black and White Method respectively\n";
-    cout << "   -?  --help                         Edit config.h to set parameter\n";
+    cout << "   -m  --method     <blackAndWhiteMethod>       Set Player's arallel methods \n"\
+            "                    <blackMethod> <whiteMethod> ( choice: openmp, pthread.  default: openmp )\n";
+    cout << "   -?  --help                                   Edit config.h to set parameter\n";
 }
 void setEnvParameter(int argc, char** argv) {
     int opt;
