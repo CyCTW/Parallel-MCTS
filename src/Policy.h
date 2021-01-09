@@ -23,12 +23,14 @@ public:
 
         if ( env.simulation_counts > 0 ) {
             int count_sim = 0;
-
+            start = chrono::steady_clock::now();
             while (count_sim < env.simulation_counts) {
                 tree.tree_policy();
                 count_sim++;
             }
-
+            end = chrono::steady_clock::now();
+            diff_time = chrono::duration<double, milli>(end - start).count();
+            log.cost_time += diff_time;
         }
         else if ( env.time > 0 ){
             
@@ -37,9 +39,9 @@ public:
                 end = chrono::steady_clock::now();
                 diff_time = chrono::duration<double, milli>(end - start).count();
             }
+            log.cost_time += diff_time;
         }
         log.search_count += tree.root->total_count;
-        log.cost_time += diff_time;
 
         if (PRINT_TREE)
             tree.root->showchild();
@@ -62,22 +64,27 @@ public:
         auto diff_time = chrono::duration<double, milli>(end - start).count();
 
         if (env.time > 0) {
+            
             while (diff_time < env.time)
             {
                 tree.parallelLeaf_tree_policy(env);
                 end = chrono::steady_clock::now();
                 diff_time = chrono::duration<double, milli>(end - start).count();
             }
+            log.cost_time += diff_time;
         }
         else if(env.simulation_counts > 0) {
+            start = chrono::steady_clock::now();
             while (count_sim < env.simulation_counts) {
                 tree.parallelLeaf_tree_policy(env);
                 count_sim++;
             }
+            end = chrono::steady_clock::now();
+            diff_time = chrono::duration<double, milli>(end - start).count();
+            log.cost_time += diff_time;
         }
         // cout << "Parallel count:" << tree.root->total_count << "\n";
         log.search_count = tree.root->total_count;
-        log.cost_time += diff_time;
 
         if (PRINT_TREE)
             tree.root->showchild();
