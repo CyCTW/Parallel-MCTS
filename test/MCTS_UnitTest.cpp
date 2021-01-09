@@ -113,7 +113,7 @@ namespace {
 		SetEnv();
 
 		a.take_action(b, Policy::MCTS_Serial, log, env);
-		double err = 0.5;
+		double err = 5;
 		EXPECT_LT(log.cost_time, time + err);
 	}	
 	TEST_F(MonteCarloTreeTest, ParallelLeafSimulationTime) {
@@ -122,7 +122,7 @@ namespace {
 		SetEnv();
 		
 		a.take_action(b, Policy::MCTS_Parallel_Leaf, log, env);
-		double err = 0.5;
+		double err = 5;
 		EXPECT_LT(log.cost_time, time + err);
 	}
 
@@ -132,7 +132,7 @@ namespace {
 		SetEnv();
 
 		a.take_action(b, Policy::MCTS_Parallel_Root, log, env);
-		double err = 0.5;
+		double err = 5;
 		EXPECT_LT(log.cost_time, time + err);
 	}
 
@@ -142,7 +142,7 @@ namespace {
 		SetEnv();
 
 		a.take_action(b, Policy::MCTS_Parallel_Tree, log, env);
-		double err = 0.5;
+		double err = 5;
 		EXPECT_LT(log.cost_time, time + err);
 	}
 }
