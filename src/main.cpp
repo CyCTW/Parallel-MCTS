@@ -40,7 +40,12 @@ void setEnvParameter(int argc, char** argv) {
     while ((opt = getopt_long(argc, argv, "c:t:T:p:m:?", long_options, NULL)) != EOF)
     {
         // std::string argPolicy = optarg;
-        cout << "argC: " << argc << '\n';
+        // cout << "argC: " << argc << '\n';
+        cout << "index: " << optind << '\n';
+
+        // cout << "value: " << argv[optind] << '\n';
+
+        int index;
         // cout << "argV: " << string(argv) << '\n';
         switch (opt)
         {
@@ -56,19 +61,37 @@ void setEnvParameter(int argc, char** argv) {
                 envParam.thread_num = atoi(optarg);
                 break;
             case 'p':
-                envParam.black_policy = optarg;
-                envParam.white_policy = optarg;
+                index = optind - 1;
+                if (index + 1 < argc) {
+                    if ( argv[index+1][0] == '-') {
+                        envParam.black_policy = envParam.white_policy = argv[index];
+                    } else {
+                        envParam.black_policy =  argv[index];
+                        envParam.white_policy =  argv[index+1];
+                    }
+                } else {
+                        envParam.black_policy = envParam.white_policy = argv[index];
+                }
                 break;
             case 'm':
-                envParam.black_method =  optarg;
-                envParam.white_method =  optarg;
-
+                index = optind - 1;
+                if (index + 1 < argc) {
+                    if ( argv[index+1][0] == '-') {
+                        envParam.black_method = envParam.white_method = argv[index];
+                    } else {
+                        envParam.black_method =  argv[index];
+                        envParam.white_method =  argv[index+1];
+                    }
+                } else {
+                    envParam.black_method = envParam.white_method = argv[index];
+                }
                 break;
             case '?':
                 usage();
                 exit(0);
                 break;
             default:
+                cout << "Argument not recognized. Please see the usage below:\n\n";
                 exit(0);
         }
     }
@@ -120,7 +143,6 @@ int main(int argc, char *argv[]) {
     auto black_policy = setPolicy( envParam.black_policy );
     auto white_policy = setPolicy( envParam.white_policy );
     
-    return 0;
     /***** Parameter Setting *****/
     
     Log playerLog;
