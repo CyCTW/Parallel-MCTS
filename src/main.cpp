@@ -11,7 +11,7 @@
 using namespace std;
 
 auto setPolicy(string policy) {
-    cout << policy << '\n';
+    // cout << policy << '\n';
     switch (policy[0]) {
         case 'S':
         case 's':
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     envParam = {1000, -1, 4, "Tree", "Serial", "openmp", "openmp"};
     setEnvParameter(argc, argv);
     cout << "simulationCount: " << envParam.simulation_counts << '\n';
-    cout << "time: " << envParam.time << "ms" << '\n';
+    cout << "time: " << envParam.time << " ms" << '\n';
     cout << "thread num: " << envParam.thread_num << '\n';
     cout << "Black policy: " << envParam.black_policy << '\n';
     cout << "White policy: " << envParam.white_policy << '\n';
