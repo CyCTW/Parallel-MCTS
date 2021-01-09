@@ -39,7 +39,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # set path
-set(TEST test/)
+set(TEST unittest/)
 set(SRC src/)
 # enable ctest
 enable_testing()

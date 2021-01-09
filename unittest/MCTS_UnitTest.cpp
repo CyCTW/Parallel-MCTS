@@ -116,7 +116,7 @@ namespace {
 		double err = 500;
 		EXPECT_LT(log.cost_time, time + err);
 	}	
-	TEST_F(MonteCarloTreeTest, ParallelLeafSimulationTime) {
+	TEST_F(MonteCarloTreeTest, ParallelLeafSimulationTimePthread) {
 		SetPthread();
 		SetTime(2000);
 		SetEnv();
@@ -126,7 +126,7 @@ namespace {
 		EXPECT_LT(log.cost_time, time + err);
 	}
 
-	TEST_F(MonteCarloTreeTest, ParallelRootSimulationTime) {
+	TEST_F(MonteCarloTreeTest, ParallelRootSimulationTimePthread) {
 		SetPthread();
 		SetTime(2000);
 		SetEnv();
@@ -136,8 +136,39 @@ namespace {
 		EXPECT_LT(log.cost_time, time + err);
 	}
 
-	TEST_F(MonteCarloTreeTest, ParallelTreeSimulationTime) {
+	TEST_F(MonteCarloTreeTest, ParallelTreeSimulationTimePthread) {
 		SetPthread();
+		SetTime(2000);
+		SetEnv();
+
+		a.take_action(b, Policy::MCTS_Parallel_Tree, log, env);
+		double err = 500;
+		EXPECT_LT(log.cost_time, time + err);
+	}
+	TEST_F(MonteCarloTreeTest, ParallelLeafSimulationTimeOMP) {
+		SetOMP();
+
+		SetTime(2000);
+		SetEnv();
+		
+		a.take_action(b, Policy::MCTS_Parallel_Leaf, log, env);
+		double err = 500;
+		EXPECT_LT(log.cost_time, time + err);
+	}
+
+	TEST_F(MonteCarloTreeTest, ParallelRootSimulationTimeOMP) {
+		SetOMP();
+
+		SetTime(2000);
+		SetEnv();
+
+		a.take_action(b, Policy::MCTS_Parallel_Root, log, env);
+		double err = 500;
+		EXPECT_LT(log.cost_time, time + err);
+	}
+
+	TEST_F(MonteCarloTreeTest, ParallelTreeSimulationTimeOMP) {
+		SetOMP();
 		SetTime(2000);
 		SetEnv();
 

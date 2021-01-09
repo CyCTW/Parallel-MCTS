@@ -52,7 +52,7 @@ void setEnvParameter(int argc, char** argv) {
                 envParam.time = -1;
                 break;
             case 't':
-                envParam.time = atoi(optarg);
+                envParam.time = atoi(optarg) * 1000; // convert s to ms
                 envParam.simulation_counts = -1;
                 break;
             case 'T':
