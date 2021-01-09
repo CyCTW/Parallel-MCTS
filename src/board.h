@@ -5,6 +5,8 @@ Surakarta Game board, implement functions related to board.
 
 #pragma once
 
+#include "config.h"
+
 #include <array>
 #include <iostream>
 #include <iomanip>
@@ -16,19 +18,9 @@ Surakarta Game board, implement functions related to board.
 #include <set>
 #include <functional>
 #include <iostream>
-#include "config.h"
+
 // #include <torch/torch.h>
-struct EnvParameter{
-    int simulation_counts;
-    double time;
-    int thread_num;
-    std::string black_policy;
-    std::string white_policy;
-	std::string black_method;
-	std::string white_method;
 
-
-} envParam;
 class Pair {
 public:
 	char prev;

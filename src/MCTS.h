@@ -9,12 +9,11 @@
 #include <omp.h>
 #include <thread>
 
-// #define THREAD_NUM 4
-
 class MonteCarloTree {
 public:
-	std::unique_ptr<TreeNode> root;
 	// std::vector<TreeNode*> path;
+	std::unique_ptr<TreeNode> root;
+
 	board root_board;
 	
 	std::random_device rd;
@@ -23,6 +22,8 @@ public:
 	static constexpr double explore_parameter = sqrt(2.0);
 
 	MonteCarloTree() : root(), root_board(), eng(rd()) {}
+
+private:
 	TreeNode* UCB (TreeNode* n)  {
 
 		if(n->child_size == 0) return nullptr;
@@ -149,6 +150,7 @@ public:
 		}
 	}
 	
+public:
 	
 	void tree_policy() {
 		// auto start = chrono::steady_clock::now();
@@ -188,18 +190,7 @@ public:
 		backpropogate(result, path);
 	}
 
-	void leafOMP(board b, std::vector<TreeNode*> &path, EnvParameter env) {
-        omp_set_num_threads(env.thread_num);
-        
-        #pragma omp parallel for
-        for (int i=0; i < env.thread_num; ++i){
-
-            auto result = simulate(b);
-
-            #pragma omp critical
-            backpropogate(result, path);
-        }
-    }
+	
 	void leafPthread(board b, std::vector<TreeNode*> &path, EnvParameter env) {
 		std::thread workers[ env.thread_num ];
 		for(int i=1; i < env.thread_num; i++) {
@@ -212,6 +203,18 @@ public:
 		}
 	}
 
+	void leafOMP(board b, std::vector<TreeNode*> &path, EnvParameter env) {
+        omp_set_num_threads(env.thread_num);
+        
+        #pragma omp parallel for
+        for (int i=0; i < env.thread_num; ++i){
+
+            auto result = simulate(b);
+
+            #pragma omp critical
+            backpropogate(result, path);
+        }
+    }
 	void parallelLeaf_tree_policy(const EnvParameter &env) {
 		// may have problem
 		// int CountInSimulation = 0;

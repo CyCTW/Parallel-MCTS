@@ -1,14 +1,16 @@
 #pragma once
 
-#include <iostream>
-#include <omp.h>
-#include <map>
 #include "MCTS.h"
 #include "Log.h"
 #include "ParallelRoot.h"
 #include "ParallelTree.h"
 
+#include <iostream>
+#include <omp.h>
+#include <map>
+
 using namespace std;
+
 class Policy {
 public:
     static Pair MCTS_Serial(board &before, const PIECE &piece, const EnvParameter &env,  Log &log) {
@@ -35,7 +37,7 @@ public:
                 diff_time = chrono::duration<double, milli>(end - start).count();
             }
         }
-        log.search_count = tree.root->total_count;
+        log.search_count += tree.root->total_count;
 
         if (PRINT_TREE)
             tree.root->showchild();
@@ -83,8 +85,6 @@ public:
     /***** leaf parallelization *****/
 
     /***** Root parallelization *****/
-
-
     static Pair MCTS_Parallel_Root(board &before, const PIECE &piece,  const EnvParameter &env,  Log &log) {
 
         MonteCarloTree trees[env.thread_num];
@@ -149,10 +149,6 @@ public:
 
 
     /***** Tree parallelization *****/    
-
-    /***** Pthread *****/
-    
-
     static Pair MCTS_Parallel_Tree(board &before, const PIECE &piece,  const EnvParameter &env,  Log &log) { 
         MonteCarloTree tree;
         tree.reset(before);

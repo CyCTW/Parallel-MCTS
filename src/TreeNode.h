@@ -1,5 +1,4 @@
 #pragma once
-#define NDEBUG
 
 #include "board.h"
 

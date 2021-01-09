@@ -1,12 +1,14 @@
 #pragma once
 #include "board.h"
 #include "Log.h"
-#include<chrono>
-// #include<time.h>
+
+#include <chrono>
+
 using namespace std;
 class Agent {
 
 public:
+    Agent() : piece(BLACK) , step(0) {};
     Agent(PIECE piece) : piece(piece), step(0) {};
 
     Pair take_action(board &b, Pair (*Policy)(board&, const PIECE&,const EnvParameter&, Log &log), Log &log,  EnvParameter &envParam) {
@@ -18,7 +20,6 @@ public:
 
         /*** Log Storage ***/
         log.cost_time += chrono::duration <double, milli> (diff_time).count();
-        log.search_count += envParam.simulation_counts;
         /*** Log Storage ***/
         
 
@@ -30,15 +31,10 @@ public:
             return mv;
         }
     };
-
-    PIECE get_piece() const { return piece; }
-
-    int getStep() {
-        return step;
-    }
+    inline int getStep() const {  return step; }
+    
 protected:
     const PIECE piece;
-
     int step;
 
 }; 
