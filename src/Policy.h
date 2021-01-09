@@ -84,7 +84,7 @@ public:
             log.cost_time += diff_time;
         }
         // cout << "Parallel count:" << tree.root->total_count << "\n";
-        log.search_count = tree.root->total_count;
+        log.search_count += tree.root->total_count;
 
         if (PRINT_TREE)
             tree.root->showchild();
@@ -138,7 +138,7 @@ public:
                 bag[move] += child[ child_idx ].total_count;
             }
         }
-        log.search_count = Vcount;
+        log.search_count += Vcount;
         log.cost_time += diff_time;
 
         int maxCount = 0;
@@ -178,7 +178,7 @@ public:
         auto end = chrono::steady_clock::now();
         auto diff_time = chrono::duration<double, milli>(end-start).count();
         // cout << "Parallel count:" << tree.root->total_count << "\n";
-        log.search_count = tree.root->total_count;
+        log.search_count += tree.root->total_count;
         log.cost_time += diff_time;
 
         if (PRINT_TREE)
