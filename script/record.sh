@@ -8,10 +8,16 @@ PARALLEL_TIME=0
 SERIAL_CNT=0
 SERIAL_TIME=0
 
+PROJECT_ROOT=$(pwd | rev | cut -d / -f 1 --complement | rev )
+PROJECT_ROOT=$PROJECT_ROOT/build
+# /home/cyctw/Documents/PP/FinalPP/Parallel-MCTS/build
+
+cd $PROJECT_ROOT
 
 for i in $(seq 1 $GAMES);
 do
-    make clean && make; ./mcts > result.txt
+    # make clean && make; ./mcts > result.txt
+    ./mcts > result.txt
 
     game_parallel_cnt=`cat result.txt | grep "Parallel count:" | cut -d ":" -f2 | awk 'BEGIN{cnt=0} {cnt+=$1} END{print cnt}' `
     game_serial_cnt=`cat result.txt | grep "Serial count:" | cut -d ":" -f2 | awk 'BEGIN{cnt=0} {cnt+=$1} END{print cnt}' `
