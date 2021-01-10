@@ -3,10 +3,10 @@
 GAMES=10
 BLACK=0
 WHITE=0
-PARALLEL_CNT=0
-PARALLEL_TIME=0
-SERIAL_CNT=0
-SERIAL_TIME=0
+PLAYER_CNT=0
+PLAYER_TIME=0
+ENV_CNT=0
+ENV_TIME=0
 
 PROJECT_ROOT=$(pwd | rev | cut -d / -f 1 --complement | rev )
 PROJECT_ROOT=$PROJECT_ROOT/build
@@ -16,42 +16,51 @@ cd $PROJECT_ROOT
 
 for i in $(seq 1 $GAMES);
 do
-    # make clean && make; ./mcts > result.txt
-    ./mcts > result.txt
+    ./mcts $@ > result.txt
 
-    game_parallel_cnt=`cat result.txt | grep "Parallel count:" | cut -d ":" -f2 | awk 'BEGIN{cnt=0} {cnt+=$1} END{print cnt}' `
-    game_serial_cnt=`cat result.txt | grep "Serial count:" | cut -d ":" -f2 | awk 'BEGIN{cnt=0} {cnt+=$1} END{print cnt}' `
+    game_player_cnt=`sed -n '/Player/,/Envir/p' tesst | grep "Total search count: " | cut -d ":" -f2 | cut -d " " -f2`
+    game_env_cnt=`sed -n '/Envir/,/times/p' tesst | grep "Total search count: " | cut -d ":" -f2 | cut -d " " -f2`
 
-    PARALLEL_CNT=`echo $PARALLEL_CNT + $game_parallel_cnt | bc`
-    SERIAL_CNT=`echo $SERIAL_CNT + $game_serial_cnt | bc`
+    PLAYER_CNT=`echo $PLAYER_CNT + $game_player_cnt | bc`
+    ENV_CNT=`echo $ENV_CNT + $game_env_cnt | bc`
 
-    game_parallel_time=`cat result.txt | grep "Total time cost: " | head -n 1 |   grep -Eo '[0-9]+([.][0-9]+)?'`
-    game_serial_time=`cat result.txt | grep "Total time cost: " | tail -n 1 |   grep -Eo '[0-9]+([.][0-9]+)?'`
+    game_player_time=`sed -n '/Player/,/Envir/p' result.txt | grep "Total time cost: " | cut -d ":" -f2 | cut -d " " -f2`
+    game_env_time=`sed -n '/Envir/,/times/p' tesst | grep "Total time cost: " | cut -d ":" -f2 | cut -d " " -f2`
 
-    PARALLEL_TIME=`echo $PARALLEL_TIME + $game_parallel_time | bc`
-    SERIAL_TIME=`echo $SERIAL_TIME + $game_serial_time | bc`
+    PLAYER_TIME=`echo $PLAYER_TIME + $game_player_time | bc`
+    ENV_TIME=`echo $ENV_TIME + $game_env_time | bc`
 
     winner=`cat result.txt | grep "winner:" | cut -d ":" -f2`
-    if [ $winner -eq 0 ]; then
+    if [ $winner = "Black" ]; then
         BLACK=$((BLACK+1))
-    else
+    elif [ $winner = "White" ]; then
         WHITE=$((WHITE+1))
+    else 
+        BLACK=`echo $BLACK + 0.5 | bc`
+        WHITE=`echo $WHITE + 0.5 | bc`
     fi
 done
+AVG_Player_step=`echo $PLAYER_CNT/$PLAYER_TIME | bc -l`
+AVG_Env_step=`echo $ENV_CNT/$ENV_TIME | bc -l `
 
-AVG_Parallel_step=`echo $PARALLEL_CNT/$PARALLEL_TIME | bc -l`
-AVG_Serial_step=`echo $SERIAL_CNT/$SERIAL_TIME | bc -l `
-
-echo "\n\n\nIn ${GAMES} Games"
+echo "In ${GAMES} Games"
+# echo `cat result.txt | sed -n '/simulationCount:/,/+/p' | head -n -1`
+echo `cat result.txt | sed '1,1!d'`
+echo `cat result.txt | sed '2,2!d'`
+echo `cat result.txt | sed '3,3!d'`
+echo `cat result.txt | sed '4,4!d'`
+echo `cat result.txt | sed '5,5!d'`
+echo 
+echo 
 echo "The average win rate of black is ${BLACK}/${GAMES}"
 
-echo "The total simulation count of parallel is ${PARALLEL_CNT}"
-echo "The total simulation count of serial is ${SERIAL_CNT}"
+echo "The total simulation count of black is ${PLAYER_CNT}"
+echo "The total simulation count of white is ${ENV_CNT}"
 
-echo "The total time of parallel is ${PARALLEL_TIME}"
-echo "The total time of serial is ${SERIAL_TIME}"
+echo "The total time of black is ${PLAYER_TIME}"
+echo "The total time of white is ${ENV_TIME}"
 
-echo "The average steps of Parallel is $AVG_Parallel_step steps/(ms)"
-echo "The average steps of serial is $AVG_Serial_step steps/(ms)"
+echo "The average steps of black is $AVG_Player_step steps/(ms)"
+echo "The average steps of white is $AVG_Env_step steps/(ms)"
 
 
