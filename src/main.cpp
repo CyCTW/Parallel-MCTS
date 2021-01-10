@@ -55,13 +55,11 @@ int main(int argc, char *argv[]) {
     
     /***** Parameter Setting *****/
     
-    Log playerLog;
-    Log envirLog;
+    Log playerLog, envirLog;
 
     // Game Parameter
     board cur_board;
-    Agent player{BLACK};
-    Agent envir{WHITE};
+    Agent player{BLACK}, envir{WHITE};
     WIN_STATE outcome;
 
     while (true) {
